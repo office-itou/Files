@@ -1,0 +1,17 @@
+* binary
+
+.editorconfig  diff=binaryfile
+.gitignore     diff=binaryfile
+.gitattributes diff=binaryfile
+
+*.md         diff=binaryfile
+*.txt        diff=binaryfile
+*.xml        diff=binaryfile
+*.sh         diff=binaryfile
+*.cfg        diff=binaryfile
+*.c          diff=binaryfile
+*.cpp        diff=binaryfile
+*.h          diff=binaryfile
+Makefile     diff=binaryfile
+Makefile.am  diff=binaryfile
+configure.ac diff=binaryfile
