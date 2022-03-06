@@ -1,3 +1,6 @@
+Rem ---------------------------------------------------------------------------
+Rem ConvCovid19Data.vbs: CSV->TXT(TAB区切り)変換
+Rem ---------------------------------------------------------------------------
 Option Explicit
 
 Rem ---------------------------------------------------------------------------
@@ -21,6 +24,8 @@ Rem ---------------------------------------------------------------------------
     Dim InpCode
     Dim InpName
     Dim InpValue
+    Dim InpValue0
+    Dim InpValue1
 
     Dim OutFileName
     Dim OutCount
@@ -30,8 +35,6 @@ Rem ---------------------------------------------------------------------------
 
     Dim OldCode
     Dim OldValue
-
-    Dim TxtFileName
 Rem ---------------------------------------------------------------------------
     Dim xlManual
     Dim xlAutomatic
@@ -47,7 +50,7 @@ Rem ---------------------------------------------------------------------------
     Dim objFolder
     Dim objFile
 Rem ---------------------------------------------------------------------------
-    Dim I, J
+    Dim I, J, K
     Dim Ret
 
 Rem --- severe_cases_daily ----------------------------------------------------
@@ -89,6 +92,8 @@ Rem --- severe_cases_daily ----------------------------------------------------
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+
+    Erase OutData
 
     Wscript.Echo "終了：" & InpFileName
 
@@ -142,6 +147,8 @@ Rem --- requiring_inpatient_care_etc_daily ------------------------------------
         .Close
     End With
 
+    Erase OutData
+
     Wscript.Echo "終了：" & InpFileName
 
 Rem --- pcr_case_daily --------------------------------------------------------
@@ -193,6 +200,8 @@ Rem --- pcr_case_daily --------------------------------------------------------
         .Close
     End With
 
+    Erase OutData
+
     Wscript.Echo "終了：" & InpFileName
 
 Rem --- nhk_news_covid19_domestic_daily_data ----------------------------------
@@ -241,6 +250,8 @@ Rem --- nhk_news_covid19_domestic_daily_data ----------------------------------
         .Close
     End With
 
+Rem Erase OutData
+
     Wscript.Echo "終了：" & InpFileName
 
 Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
@@ -249,10 +260,16 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
     Wscript.Echo "開始：" & InpFileName
 
     Erase OutValue
-    ReDim OutValue(48, 1999)
+    ReDim OutValue(48, 1999, 3)
+    Rem 0: 各地の感染者数_1日ごとの発表数
+    Rem 1: 各地の死者数_1日ごとの発表数
+    Rem 2: 各地の直近1週間の人口10万人あたりの感染者数
+    Rem 3: 各地の直近1週間の感染者数
 
-    OutValue(0, 0) = "日付"
-    OutValue(1, 0) = "空港検疫など"
+    For I = 0 To 3
+        OutValue(0, 0, I) = "日付"
+        OutValue(1, 0, I) = "空港検疫など"
+    Next
 
     Wscript.Echo "読出：" & InpFileName
     With CreateObject("ADODB.Stream")
@@ -265,20 +282,32 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
         Do Until .EOS
             InpLine = .ReadText(-2)
             InpArray = Split(InpLine, ",")
-            InpDate = InpArray(0)
-            InpCode = InpArray(1)
-            InpName = InpArray(2)
-            InpValue = InpArray(3)
+            InpDate = InpArray(0)       Rem 日付
+            InpCode = InpArray(1)       Rem 都道府県コード
+            InpName = InpArray(2)       Rem 都道府県名
+Rem         InpArray(3)                 Rem 各地の感染者数_1日ごとの発表数
+Rem         InpArray(4)                 Rem 各地の感染者数_累計
+Rem         InpArray(5)                 Rem 各地の死者数_1日ごとの発表数
+Rem         InpArray(6)                 Rem 各地の死者数_累計
+Rem         InpArray(7)                 Rem 各地の直近1週間の人口10万人あたりの感染者数
             If IsNumeric(InpCode) = True Then
                 If OldCode <> InpCode Then
                     InpCount = 0
                     OldCode = InpCode
-                    OutValue(InpCode + 1, 0) = InpCode & ":" & InpName
+                    OutValue(InpCode + 1, 0, 0) = InpCode & ":" & InpName
+                    OutValue(InpCode + 1, 0, 1) = InpCode & ":" & InpName
+                    OutValue(InpCode + 1, 0, 2) = InpCode & ":" & InpName
+                    OutValue(InpCode + 1, 0, 3) = InpCode & ":" & InpName
                 End If
-                If IsDate(OutValue(0, InpCount + 1)) = False Then
-                    OutValue(0, InpCount + 1) = InpDate
+                If IsDate(OutValue(0, InpCount + 1, 0)) = False Then
+                    OutValue(0, InpCount + 1, 0) = InpDate
+                    OutValue(0, InpCount + 1, 1) = InpDate
+                    OutValue(0, InpCount + 1, 2) = InpDate
+                    OutValue(0, InpCount + 1, 3) = InpDate
                 End If
-                OutValue(InpCode + 1, InpCount + 1) = InpValue
+                OutValue(InpCode + 1, InpCount + 1, 0) = InpArray(3)
+                OutValue(InpCode + 1, InpCount + 1, 1) = InpArray(5)
+                OutValue(InpCode + 1, InpCount + 1, 2) = InpArray(7)
             End If
             InpCount = InpCount + 1
         Loop
@@ -287,13 +316,25 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
 
     Wscript.Echo "計算：" & InpFileName
     For I = 0 To InpCount
-         InpValue = 0
-         If OutData(0, I + 1) = OutValue(0, I + 1) Then
-             For J = 0 To 47 - 1
-                 InpValue = InpValue + OutValue(J + 2, I + 1)
-             Next
-             OutValue(1, I + 1) = OutData(1, I + 1) - InpValue
-         End If
+        If OutData(0, I + 1) = OutValue(0, I + 1, 0) Then
+            InpValue0 = 0
+            InpValue1 = 0
+            For J = 0 To 47 - 1
+                InpValue0 = InpValue0 + OutValue(J + 2, I + 1, 0)
+                InpValue1 = InpValue1 + OutValue(J + 2, I + 1, 1)
+            Next
+            OutValue(1, I + 1, 0) = OutData(1, I + 1) - InpValue0
+            OutValue(1, I + 1, 1) = OutData(3, I + 1) - InpValue1
+            If I >= 6 Then
+                For J = 1 To 48
+                    InpValue = 0
+                    For K = 0 To 6
+                        InpValue = InpValue + OutValue(J, I + 1 - K, 0)
+                    Next
+                    OutValue(J, I + 1, 3) = Round(InpValue / 7, 2)
+                Next
+            End If
+        End If
     Next
 
     Wscript.Echo "書出：" & InpFileName
@@ -304,9 +345,9 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
             OutLine = ""
             For J = 0 To 48
                 If OutLine = "" Then
-                    OutLine = OutValue(J, I)
+                    OutLine = OutValue(J, I, 0)
                 Else
-                    OutLine = OutLine & Chr(9) & OutValue(J, I)
+                    OutLine = OutLine & Chr(9) & OutValue(J, I, 0)
                 End If
             Next
             .WriteText OutLine, 1
@@ -314,6 +355,63 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        For I = 0 To InpCount
+            OutLine = ""
+            For J = 0 To 48
+                If OutLine = "" Then
+                    OutLine = OutValue(J, I, 1)
+                Else
+                    OutLine = OutLine & Chr(9) & OutValue(J, I, 1)
+                End If
+            Next
+            .WriteText OutLine, 1
+        Next
+        OutFileName = InpFileName & ".1.txt"
+        .SaveToFile OutDir & "\" & OutFileName, 2
+        .Close
+    End With
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        For I = 0 To InpCount
+            OutLine = ""
+            For J = 0 To 48
+                If OutLine = "" Then
+                    OutLine = OutValue(J, I, 2)
+                Else
+                    OutLine = OutLine & Chr(9) & OutValue(J, I, 2)
+                End If
+            Next
+            .WriteText OutLine, 1
+        Next
+        OutFileName = InpFileName & ".2.txt"
+        .SaveToFile OutDir & "\" & OutFileName, 2
+        .Close
+    End With
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        For I = 0 To InpCount
+            OutLine = ""
+            For J = 0 To 48
+                If OutLine = "" Then
+                    OutLine = OutValue(J, I, 3)
+                Else
+                    OutLine = OutLine & Chr(9) & OutValue(J, I, 3)
+                End If
+            Next
+            .WriteText OutLine, 1
+        Next
+        OutFileName = InpFileName & ".3.txt"
+        .SaveToFile OutDir & "\" & OutFileName, 2
+        .Close
+    End With
+
+    Erase OutValue
+    Erase OutData
 
     Wscript.Echo "終了：" & InpFileName
 
@@ -324,34 +422,50 @@ Rem ---------------------------------------------------------------------------
     Set objDstWorkbook = objExcel.Workbooks.Add()
 
 Rem ---------------------------------------------------------------------------
+Rem objExcel.Workbooks.OpenText FileName, _
+Rem                             Origin, _
+Rem                             StartRow, _
+Rem                             DataType, _
+Rem                             TextQualifier, _
+Rem                             ConsecutiveDelimiter, _
+Rem                             Tab, _
+Rem                             Semicolon, _
+Rem                             Comma, _
+Rem                             Space, _
+Rem                             Other, _
+Rem                             OtherChar, _
+Rem                             FieldInfo, _
+Rem                             TextVisualLayout, _
+Rem                             DecimalSeparator, _
+Rem                             ThousandsSeparator, _
+Rem                             TrailingMinusNumbers, _
+Rem                             Local
     Set objFolder = objFSO.GetFolder(OutDir)
     For Each objFile in objFolder.files
-        Wscript.Echo "開始：" & objFile
+        Wscript.Echo "抽出：" & objFile.name
         objExcel.Workbooks.OpenText objFile.Path,65001,,,,,True
         Set objSrcWorkbook = objExcel.Workbooks.Item(objExcel.Workbooks.Count)
-        For I = 1 To objSrcWorkbook.Sheets.Count
-            Select Case objSrcWorkbook.WorkSheets(I).Name
-                Case "nhk_news_covid19_domestic_daily"
-                    objSrcWorkbook.WorkSheets(I).Name = "国内感染者"
-                Case "nhk_news_covid19_prefectures_da"
-                    objSrcWorkbook.WorkSheets(I).Name = "都道府県別"
-                Case "pcr_case_daily.csv"
-                    objSrcWorkbook.WorkSheets(I).Name = "PCR 検査数"
-                Case "requiring_inpatient_care_etc_da"
-                    objSrcWorkbook.WorkSheets(I).Name = "入退院者数"
-                Case "severe_cases_daily.csv"
-                    objSrcWorkbook.WorkSheets(I).Name = "重症者数"
-            End Select
-            objSrcWorkbook.WorkSheets(I).Move ,objDstWorkbook.WorkSheets(objDstWorkbook.Sheets.Count)
-        Next
+        Select Case objFile.name
+            Case "nhk_news_covid19_domestic_daily_data.csv.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "国内感染者"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "各地感染者"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.1.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "各地死者数"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.2.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "各地10万人"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.3.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "各地 7日間"
+            Case "pcr_case_daily.csv.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "PCR 検査数"
+            Case "requiring_inpatient_care_etc_daily.csv.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "国内入退院"
+            Case "severe_cases_daily.csv.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "国内重症者"
+        End Select
+        objSrcWorkbook.WorkSheets(1).Move ,objDstWorkbook.WorkSheets(objDstWorkbook.Sheets.Count)
         Set objSrcWorkbook = Nothing
-        Wscript.Echo "終了：" & objFile
     Next
-
-Rem TxtFileName = OutDir & "\" & "severe_cases_daily.csv" & ".txt"
-Rem Wscript.Echo "開始：" & TxtFileName
-Rem objExcel.Workbooks.OpenText TxtFileName,65001,,,,,True                      Rem FileName,Origin,StartRow,DataType,TextQualifier,ConsecutiveDelimiter,Tab,Semicolon,Comma,Space,Other,OtherChar,FieldInfo,TextVisualLayout,DecimalSeparator,ThousandsSeparator,TrailingMinusNumbers,Local
-Rem Wscript.Echo "終了：" & TxtFileName
 
 Rem ---------------------------------------------------------------------------
     Set objWorkbook = Nothing
