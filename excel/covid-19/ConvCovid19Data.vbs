@@ -316,6 +316,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
     End With
 
     Wscript.Echo "ŒvZF" & InpFileName
+    Rem --- "‹ó`ŒŸ‰u‚È‚Ç"‚ÌŠ´õÒ”E€Ò”‚ÌZo ----------------------------
     For I = 0 To InpCount
         If OutData(0, I + 1) = OutValue(0, I + 1, 0) Then
             InpValue0 = 0
@@ -341,6 +342,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
     Next
 
     Wscript.Echo "‘oF" & InpFileName
+    Rem --- 0: Še’n‚ÌŠ´õÒ”_1“ú‚²‚Æ‚Ì”­•\” ---------------------------------
     With CreateObject("ADODB.Stream")
         .Charset = "UTF-8"
         .Open
@@ -358,6 +360,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+    Rem --- 1: Še’n‚Ì€Ò”_1“ú‚²‚Æ‚Ì”­•\” -----------------------------------
     With CreateObject("ADODB.Stream")
         .Charset = "UTF-8"
         .Open
@@ -376,6 +379,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+    Rem --- 2: Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ” --------------------
     With CreateObject("ADODB.Stream")
         .Charset = "UTF-8"
         .Open
@@ -394,6 +398,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+    Rem --- 3: Še’n‚Ì’¼‹ß1TŠÔ‚ÌŠ´õÒ” --------------------------------------
     With CreateObject("ADODB.Stream")
         .Charset = "UTF-8"
         .Open
