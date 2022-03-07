@@ -260,7 +260,7 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
     Wscript.Echo "ŠJnF" & InpFileName
 
     Erase OutValue
-    ReDim OutValue(48, 1999, 3)
+    ReDim OutValue(49, 1999, 3)
     Rem 0: Še’n‚ÌŠ´õÒ”_1“ú‚²‚Æ‚Ì”­•\”
     Rem 1: Še’n‚Ì€Ò”_1“ú‚²‚Æ‚Ì”­•\”
     Rem 2: Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”
@@ -268,7 +268,8 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
 
     For I = 0 To 3
         OutValue(0, 0, I) = "“ú•t"
-        OutValue(1, 0, I) = "‹ó`ŒŸ‰u‚È‚Ç"
+        OutValue(1, 0, I) = "‘“à‡Œv"
+        OutValue(2, 0, I) = "‹ó`ŒŸ‰u‚È‚Ç"
     Next
 
     Wscript.Echo "“ÇoF" & InpFileName
@@ -294,10 +295,10 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
                 If OldCode <> InpCode Then
                     InpCount = 0
                     OldCode = InpCode
-                    OutValue(InpCode + 1, 0, 0) = InpCode & ":" & InpName
-                    OutValue(InpCode + 1, 0, 1) = InpCode & ":" & InpName
-                    OutValue(InpCode + 1, 0, 2) = InpCode & ":" & InpName
-                    OutValue(InpCode + 1, 0, 3) = InpCode & ":" & InpName
+                    OutValue(InpCode + 2, 0, 0) = InpCode & ":" & InpName
+                    OutValue(InpCode + 2, 0, 1) = InpCode & ":" & InpName
+                    OutValue(InpCode + 2, 0, 2) = InpCode & ":" & InpName
+                    OutValue(InpCode + 2, 0, 3) = InpCode & ":" & InpName
                 End If
                 If IsDate(OutValue(0, InpCount + 1, 0)) = False Then
                     OutValue(0, InpCount + 1, 0) = InpDate
@@ -305,9 +306,9 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
                     OutValue(0, InpCount + 1, 2) = InpDate
                     OutValue(0, InpCount + 1, 3) = InpDate
                 End If
-                OutValue(InpCode + 1, InpCount + 1, 0) = InpArray(3)
-                OutValue(InpCode + 1, InpCount + 1, 1) = InpArray(5)
-                OutValue(InpCode + 1, InpCount + 1, 2) = InpArray(7)
+                OutValue(InpCode + 2, InpCount + 1, 0) = InpArray(3)
+                OutValue(InpCode + 2, InpCount + 1, 1) = InpArray(5)
+                OutValue(InpCode + 2, InpCount + 1, 2) = InpArray(7)
             End If
             InpCount = InpCount + 1
         Loop
@@ -320,13 +321,15 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
             InpValue0 = 0
             InpValue1 = 0
             For J = 0 To 47 - 1
-                InpValue0 = InpValue0 + OutValue(J + 2, I + 1, 0)
-                InpValue1 = InpValue1 + OutValue(J + 2, I + 1, 1)
+                InpValue0 = InpValue0 + OutValue(J + 3, I + 1, 0)
+                InpValue1 = InpValue1 + OutValue(J + 3, I + 1, 1)
             Next
-            OutValue(1, I + 1, 0) = OutData(1, I + 1) - InpValue0
-            OutValue(1, I + 1, 1) = OutData(3, I + 1) - InpValue1
+            OutValue(1, I + 1, 0) = OutData(1, I + 1)
+            OutValue(1, I + 1, 1) = OutData(3, I + 1)
+            OutValue(2, I + 1, 0) = OutData(1, I + 1) - InpValue0
+            OutValue(2, I + 1, 1) = OutData(3, I + 1) - InpValue1
             If I >= 6 Then
-                For J = 1 To 48
+                For J = 1 To 49
                     InpValue = 0
                     For K = 0 To 6
                         InpValue = InpValue + OutValue(J, I + 1 - K, 0)
@@ -343,7 +346,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .Open
         For I = 0 To InpCount
             OutLine = ""
-            For J = 0 To 48
+            For J = 0 To 49
                 If OutLine = "" Then
                     OutLine = OutValue(J, I, 0)
                 Else
@@ -360,7 +363,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .Open
         For I = 0 To InpCount
             OutLine = ""
-            For J = 0 To 48
+            For J = 0 To 49
                 If OutLine = "" Then
                     OutLine = OutValue(J, I, 1)
                 Else
@@ -378,7 +381,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .Open
         For I = 0 To InpCount
             OutLine = ""
-            For J = 0 To 48
+            For J = 0 To 49
                 If OutLine = "" Then
                     OutLine = OutValue(J, I, 2)
                 Else
@@ -396,7 +399,7 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .Open
         For I = 0 To InpCount
             OutLine = ""
-            For J = 0 To 48
+            For J = 0 To 49
                 If OutLine = "" Then
                     OutLine = OutValue(J, I, 3)
                 Else
@@ -463,6 +466,12 @@ Rem                             Local
             Case "severe_cases_daily.csv.txt"
                 objSrcWorkbook.WorkSheets(1).Name = "‘“àdÇÒ"
         End Select
+        With objExcel
+            objSrcWorkbook.WorkSheets(1).Select
+            .ActiveWindow.FreezePanes = False
+            .Range("B2").Select
+            .ActiveWindow.FreezePanes = True
+        End With
         objSrcWorkbook.WorkSheets(1).Move ,objDstWorkbook.WorkSheets(objDstWorkbook.Sheets.Count)
         Set objSrcWorkbook = Nothing
     Next
