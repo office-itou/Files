@@ -6,8 +6,8 @@
     pushd .\data
 
 Rem https://github.com/office-itou/Files/tree/master/excel/covid-19
-    curl -L -# -O -R -S "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/%E4%BA%BA%E5%8F%A3(%E4%BA%BA%E5%8F%A3%E6%8E%A8%E8%A8%882019).csv"
-    curl -L -# -O -R -S "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/%E4%BA%BA%E5%8F%A3(%E5%9B%BD%E5%8B%A2%E8%AA%BF%E6%9F%BB2020).csv"
+    curl -L -# -R -S -o "lŒû(lŒû„Œv2019).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2019).csv"
+    curl -L -# -R -S -o "lŒû(‘¨’²¸2020).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2020).csv"
 
 Rem https://www3.nhk.or.jp/news/special/coronavirus/data/
     curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_prefectures_daily_data.csv"
@@ -20,46 +20,46 @@ Rem curl -L -# -O -R -S "https://www.mhlw.go.jp/content/recovery_total.csv"
 Rem curl -L -# -O -R -S "https://www.mhlw.go.jp/content/pcr_case_daily.csv"
 Rem curl -L -# -O -R -S "https://www.mhlw.go.jp/content/death_total.csv"
 
-Rem PCRæ¤œæŸ»å®Ÿæ–½äººæ•°
+Rem PCRŒŸ¸À{l”
     curl -L -# -O -R -S "https://www.mhlw.go.jp/content/pcr_case_daily.csv"
 
-Rem PCRæ¤œæŸ»ã®å®Ÿæ–½ä»¶æ•°
+Rem PCRŒŸ¸‚ÌÀ{Œ”
     curl -L -# -O -R -S "https://www.mhlw.go.jp/content/pcr_tested_daily.csv"
 
-Rem æ–°è¦é™½æ€§è€…æ•°ã®æ¨ç§»ï¼ˆæ—¥åˆ¥ï¼‰
+Rem V‹K—z«Ò”‚Ì„ˆÚi“ú•Êj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/newly_confirmed_cases_daily.csv"
 
-Rem äººå£10ä¸‡äººå½“ãŸã‚Šæ–°è¦é™½æ€§è€…æ•°
+Rem lŒû10–œl“–‚½‚èV‹K—z«Ò”
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/newly_confirmed_cases_per_100_thousand_population_daily.csv"
 
-Rem æ€§åˆ¥ãƒ»å¹´ä»£åˆ¥æ–°è¦é™½æ€§è€…æ•°ï¼ˆé€±åˆ¥ï¼‰
+Rem «•ÊE”N‘ã•ÊV‹K—z«Ò”iT•Êj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/newly_confirmed_cases_detail_weekly.csv"
 
-Rem é™½æ€§è€…æ•°ï¼ˆç´¯ç©ï¼‰
+Rem —z«Ò”i—İÏj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/confirmed_cases_cumulative_daily.csv"
 
-Rem æ€§åˆ¥ãƒ»å¹´ä»£åˆ¥é™½æ€§è€…æ•°ï¼ˆç´¯ç©ï¼‰
+Rem «•ÊE”N‘ã•Ê—z«Ò”i—İÏj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/confirmed_cases_detail_cumulative_weekly.csv"
 
-Rem é‡ç—‡è€…æ•°ã®æ¨ç§»
+Rem dÇÒ”‚Ì„ˆÚ
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/severe_cases_daily.csv"
 
-Rem æ€§åˆ¥ãƒ»å¹´ä»£åˆ¥é‡ç—‡è€…æ•°
+Rem «•ÊE”N‘ã•ÊdÇÒ”
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/severe_cases_detail_weekly.csv"
 
-Rem æ­»äº¡è€…æ•°ï¼ˆç´¯ç©ï¼‰
+Rem €–SÒ”i—İÏj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/deaths_cumulative_daily.csv"
 
-Rem æ€§åˆ¥ãƒ»å¹´ä»£åˆ¥æ­»äº¡è€…æ•°ï¼ˆç´¯ç©ï¼‰
+Rem «•ÊE”N‘ã•Ê€–SÒ”i—İÏj
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/deaths_detail_cumulative_weekly.csv"
 
-Rem å…¥é™¢æ²»ç™‚ç­‰ã‚’è¦ã™ã‚‹è€…ç­‰æ¨ç§»
+Rem “ü‰@¡—Ã“™‚ğ—v‚·‚éÒ“™„ˆÚ
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/requiring_inpatient_care_etc_daily.csv"
 
-Rem é›†å›£æ„ŸæŸ“ç­‰ç™ºç”ŸçŠ¶æ³
+Rem W’cŠ´õ“™”­¶ó‹µ
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/cluster_events_weekly.csv"
 
-Rem HER-SYSãƒ‡ãƒ¼ã‚¿ã«åŸºã¥ãæ–°è¦é™½æ€§è€…æ•°
+Rem HER-SYSƒf[ƒ^‚ÉŠî‚Ã‚­V‹K—z«Ò”
     curl -L -# -O -R -S "https://covid19.mhlw.go.jp/public/opendata/newly_confirmed_cases_difference.csv"
 
     popd
