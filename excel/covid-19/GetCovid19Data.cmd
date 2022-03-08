@@ -5,6 +5,10 @@
 
     pushd .\data
 
+Rem https://github.com/office-itou/Files/tree/master/excel/covid-19
+    curl -L -# -O -R -S "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/%E4%BA%BA%E5%8F%A3(%E4%BA%BA%E5%8F%A3%E6%8E%A8%E8%A8%882019).csv"
+    curl -L -# -O -R -S "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/%E4%BA%BA%E5%8F%A3(%E5%9B%BD%E5%8B%A2%E8%AA%BF%E6%9F%BB2020).csv"
+
 Rem https://www3.nhk.or.jp/news/special/coronavirus/data/
     curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_prefectures_daily_data.csv"
     curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_domestic_daily_data.csv"
