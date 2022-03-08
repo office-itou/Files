@@ -62,4 +62,4 @@ Rem HER-SYSデータに基づく新規陽性者数
 
     CScript ./ConvCovid19Data.vbs
 
-Rem Pause.
+    Pause.

@@ -36,6 +36,9 @@ Rem ---------------------------------------------------------------------------
     Dim OldCode
     Dim OldValue
 Rem ---------------------------------------------------------------------------
+    Dim Population()
+    Dim RankData()
+Rem ---------------------------------------------------------------------------
     Dim xlManual
     Dim xlAutomatic
     xlManual = -4135
@@ -52,6 +55,54 @@ Rem ---------------------------------------------------------------------------
 Rem ---------------------------------------------------------------------------
     Dim I, J, K
     Dim Ret
+
+Rem --- lŒû ------------------------------------------------------------------
+    Wscript.Echo "ŠJnF‰Šú‰»ƒf[ƒ^["
+
+    Erase Population
+    ReDim Population(3, 48, 2)
+
+    InpFileName="lŒû(lŒû„Œv2019).csv"
+    Wscript.Echo "“ÇoF" & InpFileName
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        .LoadFromFile InpDir & "\" & InpFileName
+Rem     InpLine = .ReadText(-2)
+        InpCount = 0
+        Do Until .EOS
+            InpLine = .ReadText(-2)
+            InpArray = Split(InpLine, ",")
+            For I = 0 To 3
+                Population(I, InpCount, 0) = InpArray(I)
+            Next
+            InpCount = InpCount + 1
+        Loop
+        .Close
+    End With
+
+    InpFileName="lŒû(‘¨’²¸2020).csv"
+    Wscript.Echo "“ÇoF" & InpFileName
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        .LoadFromFile InpDir & "\" & InpFileName
+Rem     InpLine = .ReadText(-2)
+        InpCount = 0
+        Do Until .EOS
+            InpLine = .ReadText(-2)
+            InpArray = Split(InpLine, ",")
+            For I = 0 To 3
+                Population(I, InpCount, 1) = InpArray(I)
+            Next
+            InpCount = InpCount + 1
+        Loop
+        .Close
+    End With
+
+Rem Erase Population
+
+    Wscript.Echo "I—¹F‰Šú‰»ƒf[ƒ^["
 
 Rem --- severe_cases_daily ----------------------------------------------------
     InpFileName="severe_cases_daily.csv"
@@ -260,13 +311,14 @@ Rem --- nhk_news_covid19_prefectures_daily_data -------------------------------
     Wscript.Echo "ŠJnF" & InpFileName
 
     Erase OutValue
-    ReDim OutValue(49, 1999, 3)
+    ReDim OutValue(49, 1999, 4)
     Rem 0: Še’n‚ÌŠ´õÒ”_1“ú‚²‚Æ‚Ì”­•\”
     Rem 1: Še’n‚Ì€Ò”_1“ú‚²‚Æ‚Ì”­•\”
     Rem 2: Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”
-    Rem 3: Še’n‚Ì’¼‹ß1TŠÔ‚ÌŠ´õÒ”
+    Rem 3: Še’n‚Ì’¼‹ß1TŠÔ‚ÌŠ´õÒ”(Zo)
+    Rem 4: Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”(Zo)
 
-    For I = 0 To 3
+    For I = 0 To 4
         OutValue(0, 0, I) = "“ú•t"
         OutValue(1, 0, I) = "‘“à‡Œv"
         OutValue(2, 0, I) = "‹ó`ŒŸ‰u‚È‚Ç"
@@ -299,12 +351,14 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
                     OutValue(InpCode + 2, 0, 1) = InpCode & ":" & InpName
                     OutValue(InpCode + 2, 0, 2) = InpCode & ":" & InpName
                     OutValue(InpCode + 2, 0, 3) = InpCode & ":" & InpName
+                    OutValue(InpCode + 2, 0, 4) = InpCode & ":" & InpName
                 End If
                 If IsDate(OutValue(0, InpCount + 1, 0)) = False Then
                     OutValue(0, InpCount + 1, 0) = InpDate
                     OutValue(0, InpCount + 1, 1) = InpDate
                     OutValue(0, InpCount + 1, 2) = InpDate
                     OutValue(0, InpCount + 1, 3) = InpDate
+                    OutValue(0, InpCount + 1, 4) = InpDate
                 End If
                 OutValue(InpCode + 2, InpCount + 1, 0) = InpArray(3)
                 OutValue(InpCode + 2, InpCount + 1, 1) = InpArray(5)
@@ -316,9 +370,9 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
     End With
 
     Wscript.Echo "ŒvZF" & InpFileName
-    Rem --- "‹ó`ŒŸ‰u‚È‚Ç"‚ÌŠ´õÒ”E€Ò”‚ÌZo ----------------------------
+    Rem --- "‹ó`ŒŸ‰u‚È‚Ç"‚ÌŠ´õÒ”E€Ò”/Še’n‚Ì’¼‹ß1TŠÔ‚ÌŠ´õÒ”‚ÌZo --
     For I = 0 To InpCount
-        If OutData(0, I + 1) = OutValue(0, I + 1, 0) Then
+        If CDate(OutData(0, I + 1)) = CDate(OutValue(0, I + 1, 0)) Then
             InpValue0 = 0
             InpValue1 = 0
             For J = 0 To 47 - 1
@@ -336,10 +390,56 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
                         InpValue = InpValue + OutValue(J, I + 1 - K, 0)
                     Next
                     OutValue(J, I + 1, 3) = Round(InpValue / 7, 2)
+                    Select Case J
+                        Case 1          Rem ‘“à‡Œv
+                            If CDate(OutValue(0, I + 1, 0)) < CDate("2022/1/1") Then
+                                OutValue(J, I + 1, 4) = CDbl(InpValue / Population(3, J, 0) * 100000)
+                            Else
+                                OutValue(J, I + 1, 4) = CDbl(InpValue / Population(3, J, 1) * 100000)
+                            End If
+                        Case 2          Rem ‹ó`ŒŸ‰u‚È‚Ç
+                        Case Else       Rem Še’n
+                            If CDate(OutValue(0, I + 1, 0)) < CDate("2022/1/1") Then
+                                OutValue(J, I + 1, 4) = CDbl(InpValue / Population(3, J - 1, 0) * 100000)
+                            Else
+                                OutValue(J, I + 1, 4) = CDbl(InpValue / Population(3, J - 1, 1) * 100000)
+                            End If
+                    End Select
                 Next
             End If
         End If
     Next
+    Rem --- ÅV‚ÌŠe’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”‚Ì‡ˆÊ•t‚¯ -------
+    With CreateObject("ADODB.Recordset")
+        .Fields.Append "CD",200,128
+        .Fields.Append "NAME",200,128
+        .Fields.Append "VALUE",5
+        .Open
+        For I = 0 To 46
+            .AddNew
+            .Fields("CD").Value = Left(OutValue(I + 3, 0, 4), 2)                Rem “s“¹•{Œ§ƒR[ƒh
+            .Fields("NAME").Value = Mid(OutValue(I + 3, 0, 4), 4)               Rem “s“¹•{Œ§–¼
+            .Fields("VALUE").Value = OutValue(I + 3, InpCount + 0, 4)           Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”
+        Next
+        .Sort = "VALUE DESC,CD"
+        .MoveFirst
+        Erase RankData
+        ReDim RankData(4, 47)
+        RankData(0, 0) = "‡ˆÊ"
+        RankData(1, 0) = "“s“¹•{Œ§CD"
+        RankData(2, 0) = "“s“¹•{Œ§–¼"
+        RankData(3, 0) = "Š´õÒ”"
+        RankData(4, 0) = "ƒRƒsƒy—p"
+        For I = 1 To 47
+            RankData(0, I) = I
+            RankData(1, I) = .Fields("CD").Value
+            RankData(2, I) = .Fields("NAME").Value
+            RankData(3, I) = FormatNumber(Round(.Fields("VALUE").Value, 2), 2, -1)
+            RankData(4, I) = RankData(2, I) & ":" & RankData(3, I)
+            .MoveNext
+        Next
+        .Close
+    End With
 
     Wscript.Echo "‘oF" & InpFileName
     Rem --- 0: Še’n‚ÌŠ´õÒ”_1“ú‚²‚Æ‚Ì”­•\” ---------------------------------
@@ -417,6 +517,41 @@ Rem         InpArray(7)                 Rem Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ
         .SaveToFile OutDir & "\" & OutFileName, 2
         .Close
     End With
+    Rem --- 4: Še’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”(Zo) --------------
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        For I = 0 To InpCount
+            OutLine = ""
+            For J = 0 To 49
+                If OutLine = "" Then
+                    OutLine = OutValue(J, I, 4)
+                Else
+                    OutLine = OutLine & Chr(9) & OutValue(J, I, 4)
+                End If
+            Next
+            .WriteText OutLine, 1
+        Next
+        OutFileName = InpFileName & ".4.txt"
+        .SaveToFile OutDir & "\" & OutFileName, 2
+        .Close
+    End With
+    Rem --- ÅV‚ÌŠe’n‚Ì’¼‹ß1TŠÔ‚ÌlŒû10–œl‚ ‚½‚è‚ÌŠ´õÒ”‚Ì‡ˆÊ•t‚¯ -------
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        For I = 0 To 47
+            OutLine = RankData(0, I) & _
+             Chr(9) & RankData(1, I) & _
+             Chr(9) & RankData(2, I) & _
+             Chr(9) & RankData(3, I) & _
+             Chr(9) & RankData(4, I)
+            .WriteText OutLine, 1
+        Next
+        OutFileName = InpFileName & ".4.‡ˆÊ•t‚¯.txt"
+        .SaveToFile OutDir & "\" & OutFileName, 2
+        .Close
+    End With
 
     Erase OutValue
     Erase OutData
@@ -464,6 +599,10 @@ Rem                             Local
                 objSrcWorkbook.WorkSheets(1).Name = "Še’n10–œl"
             Case "nhk_news_covid19_prefectures_daily_data.csv.3.txt"
                 objSrcWorkbook.WorkSheets(1).Name = "Še’n 7“úŠÔ"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.4.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "Še’n10–œl(Zo)"
+            Case "nhk_news_covid19_prefectures_daily_data.csv.4.‡ˆÊ•t‚¯.txt"
+                objSrcWorkbook.WorkSheets(1).Name = "Še’n10–œl(‡ˆÊ)"
             Case "pcr_case_daily.csv.txt"
                 objSrcWorkbook.WorkSheets(1).Name = "PCR ŒŸ¸”"
             Case "requiring_inpatient_care_etc_daily.csv.txt"
