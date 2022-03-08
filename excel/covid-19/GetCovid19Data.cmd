@@ -6,8 +6,12 @@
     pushd .\data
 
 Rem https://github.com/office-itou/Files/tree/master/excel/covid-19
-    curl -L -# -R -S -o "人口(人口推計2019).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2019).csv"
-    curl -L -# -R -S -o "人口(国勢調査2020).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2020).csv"
+    If Not Exist "人口(人口推計2019).csv" (
+        curl -L -# -R -S -o "人口(人口推計2019).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2019).csv"
+    )
+    If Not Exist "人口(国勢調査2020).csv" (
+        curl -L -# -R -S -o "人口(国勢調査2020).csv" "https://raw.githubusercontent.com/office-itou/Files/master/excel/covid-19/Population(2020).csv"
+    )
 
 Rem https://www3.nhk.or.jp/news/special/coronavirus/data/
     curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_prefectures_daily_data.csv"
