@@ -15,3 +15,8 @@
 Makefile     diff=binaryfile
 Makefile.am  diff=binaryfile
 configure.ac diff=binaryfile
+*.xlsx       diff=binaryfile
+*.jpg        diff=binaryfile
+*.cmd        diff=binaryfile
+*.vbs        diff=binaryfile
+*.csv        diff=binaryfile
