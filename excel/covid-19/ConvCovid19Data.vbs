@@ -4,6 +4,19 @@ Rem ---------------------------------------------------------------------------
 Option Explicit
 
 Rem ---------------------------------------------------------------------------
+    Dim objShell
+    Dim Arguments
+    If InStr(LCase(WScript.FullName), "cscript.exe") = 0 Then
+        For I = 0 To WScript.Arguments.Count - 1
+            Arguments = Arguments & " """ & WScript.Arguments.Item(I) & """"
+        Next
+        Set objShell = CreateObject("WScript.Shell")
+        objShell.Run "CScript """ & WScript.ScriptFullName & """ " & Arguments
+        Set objShell =  Nothing
+        WScript.Quit
+    End If
+
+Rem ---------------------------------------------------------------------------
     Dim objFSO
     Dim CurDir
 
@@ -619,6 +632,8 @@ Rem                             Local
         objSrcWorkbook.WorkSheets(1).Move ,objDstWorkbook.WorkSheets(objDstWorkbook.Sheets.Count)
         Set objSrcWorkbook = Nothing
     Next
+    Wscript.Echo "ï€ë∂ÅF" & CurDir & "\Covid19Data.xlsx"
+    objDstWorkbook.SaveAs(CurDir & "\Covid19Data.xlsx")
 
 Rem ---------------------------------------------------------------------------
     Set objWorkbook = Nothing
