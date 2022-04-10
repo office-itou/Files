@@ -62,6 +62,10 @@ Rem ---------------------------------------------------------------------------
     Dim objWorksheet
     Dim objSrcWorkbook
     Dim objDstWorkbook
+
+    Dim obOrgjExcel
+    Dim objOrgWorkbook
+    Dim RowsEnd
 Rem ---------------------------------------------------------------------------
     Dim objFolder
     Dim objFile
@@ -632,11 +636,92 @@ Rem                             Local
         objSrcWorkbook.WorkSheets(1).Move ,objDstWorkbook.WorkSheets(objDstWorkbook.Sheets.Count)
         Set objSrcWorkbook = Nothing
     Next
+
     Wscript.Echo "保存：" & CurDir & "\Covid19Data.xlsx"
     objDstWorkbook.SaveAs(CurDir & "\Covid19Data.xlsx")
 
 Rem ---------------------------------------------------------------------------
-    Set objWorkbook = Nothing
+Rem グラフ      ：各地10万人(順位)
+Rem 感染者数    ：各地感染者
+Rem 7日間平均値 ：各地 7日間
+Rem 10万人あたり：各地10万人/各地10万人(算出)
+Rem 日本国内    ：国内感染者/国内重症者/国内入退院/PCR 検査数
+    Set obOrgjExcel = GetObject(, "Excel.Application")
+    For Each objOrgWorkbook In obOrgjExcel.Workbooks
+        If objOrgWorkbook.Name = "covid-19.xlsx" Then
+            Ret = MsgBox("データーのコピーをしますか？", vbYesNo)
+            If Ret = 6 Then
+                Wscript.Echo "転送：Covid19Data.xlsx→covid-19.xlsx"
+                Rem --- 感染者数 ----------------------------------------------
+                With objDstWorkbook.WorkSheets("各地感染者")
+                    RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("感染者数").Range("B3:AX" & (RowsEnd + 3 - 2)).Value = .Range("B2:AX" & RowsEnd).Value
+                End With
+                With objOrgWorkbook.WorkSheets("感染者数")
+                    .Activate 
+                    .Range("B" & (RowsEnd + 3 - 2)).Select
+                End With
+                Rem --- 7日間平均値 -------------------------------------------
+                With objDstWorkbook.WorkSheets("各地 7日間")
+                    RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("7日間平均値").Range("B3:AX" & (RowsEnd + 3 - 2)).Value = .Range("B2:AX" & RowsEnd).Value
+                End With
+                With objOrgWorkbook.WorkSheets("7日間平均値")
+                    .Activate 
+                    .Range("B" & (RowsEnd + 3 - 2)).Select
+                End With
+                Rem --- 10万人あたり ------------------------------------------
+                With objDstWorkbook.WorkSheets("各地10万人")
+                    RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("10万人あたり").Range("B3:AX" & (RowsEnd + 3 - 2)).Value = .Range("B2:AX" & RowsEnd).Value
+                End With
+                With objDstWorkbook.WorkSheets("各地10万人(算出)")
+                    RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("10万人あたり").Range("B3:B" & (RowsEnd + 3 - 2)).Value = .Range("B2:B" & RowsEnd).Value
+                End With
+                With objOrgWorkbook.WorkSheets("10万人あたり")
+                    .Activate 
+                    .Range("B" & (RowsEnd + 3 - 2)).Select
+                End With
+                Rem --- 日本国内 ----------------------------------------------
+                With objDstWorkbook.WorkSheets("国内重症者")
+                    RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("日本国内").Range("G118:G" & (RowsEnd + 118 - 2)).Value = .Range("B2:B" & RowsEnd).Value
+                End With
+                With objDstWorkbook.WorkSheets("国内入退院")
+                    RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("日本国内").Range("I117:I" & (RowsEnd + 117 - 2)).Value = .Range("B2:B" & RowsEnd).Value
+                    RowsEnd = .Cells(.Rows.Count, 3).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("日本国内").Range("J118:J" & (RowsEnd + 118 - 3)).Value = .Range("C3:C" & RowsEnd).Value
+                End With
+                With objDstWorkbook.WorkSheets("PCR 検査数")
+                    RowsEnd = .Cells(.Rows.Count, 10).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("日本国内").Range("K36:K" & (RowsEnd + 36 - 2)).Value = .Range("J2:J" & RowsEnd).Value
+                End With
+                With objDstWorkbook.WorkSheets("国内感染者")
+                    RowsEnd = .Cells(.Rows.Count, 4).End(-4162).Row
+                    objOrgWorkbook.WorkSheets("日本国内").Range("E3:E" & (RowsEnd + 3 - 2)).Value = .Range("D2:D" & RowsEnd).Value
+                End With
+                With objOrgWorkbook.WorkSheets("日本国内")
+                    .Activate 
+                    .Range("B" & (RowsEnd + 3 - 2)).Select
+                End With
+                Rem --- グラフ用 ----------------------------------------------
+                With objDstWorkbook.WorkSheets("各地10万人(順位)")
+                    RowsEnd = .Cells(.Rows.Count, 5).End(-4162).Row
+                    .Range("E2:E" & RowsEnd).Copy
+                End With
+                Rem --- 終了処理 ----------------------------------------------
+                objDstWorkbook.Close
+                objExcel.Quit
+            End If
+            Exit For
+        End If
+    Next
+    Set obOrgjExcel = Nothing
+
+Rem ---------------------------------------------------------------------------
+    Set objDstWorkbook = Nothing
     Set objExcel = Nothing
     Set objFSO = Nothing
 
