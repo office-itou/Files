@@ -14,8 +14,8 @@ Rem https://github.com/office-itou/Files/tree/master/excel/covid-19
     )
 
 Rem https://www3.nhk.or.jp/news/special/coronavirus/data/
-    curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_prefectures_daily_data.csv"
-    curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_domestic_daily_data.csv"
+Rem curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_prefectures_daily_data.csv"
+Rem curl -L -# -O -R -S "https://www3.nhk.or.jp/n-data/opendata/coronavirus/nhk_news_covid19_domestic_daily_data.csv"
 
 Rem https://www.mhlw.go.jp/stf/covid-19/open-data.html
 Rem curl -L -# -O -R -S "https://www.mhlw.go.jp/content/severe_daily.csv"
