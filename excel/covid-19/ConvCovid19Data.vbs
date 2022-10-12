@@ -656,7 +656,7 @@ Rem 日本国内    ：国内感染者/国内重症者/国内入退院/PCR 検査数
                 Rem --- 感染者数 ----------------------------------------------
                 With objDstWorkbook.WorkSheets("各地感染者")
                     RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("感染者数").Range("B989:AX" & (RowsEnd + 3 - 2)).Value = .Range("B988:AX" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("感染者数").Range("B" & (RowsEnd + 3 - 2) & ":AX" & (RowsEnd + 3 - 2)).Value = .Range("B" & RowsEnd & ":AX" & RowsEnd).Value
                 End With
                 With objOrgWorkbook.WorkSheets("感染者数")
                     .Activate 
@@ -665,7 +665,7 @@ Rem 日本国内    ：国内感染者/国内重症者/国内入退院/PCR 検査数
                 Rem --- 7日間平均値 -------------------------------------------
                 With objDstWorkbook.WorkSheets("各地 7日間")
                     RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("7日間平均値").Range("B989:AX" & (RowsEnd + 3 - 2)).Value = .Range("B988:AX" & RowsEnd).Value
+Rem                 objOrgWorkbook.WorkSheets("7日間平均値").Range("B" & (RowsEnd + 3 - 2) & ":AX" & (RowsEnd + 3 - 2)).Value = .Range("B" & RowsEnd & ":AX" & RowsEnd).Value
                 End With
                 With objOrgWorkbook.WorkSheets("7日間平均値")
                     .Activate 
@@ -674,7 +674,7 @@ Rem 日本国内    ：国内感染者/国内重症者/国内入退院/PCR 検査数
                 Rem --- 10万人あたり ------------------------------------------
                 With objDstWorkbook.WorkSheets("各地10万人(算出)")
                     RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("10万人あたり").Range("B989:B" & (RowsEnd + 3 - 2)).Value = .Range("B988:B" & RowsEnd).Value
+Rem                 objOrgWorkbook.WorkSheets("10万人あたり").Range("B" & (RowsEnd + 3 - 2) & ":B" & (RowsEnd + 3 - 2)).Value = .Range("B" & RowsEnd & ":B" & RowsEnd).Value
                 End With
                 With objOrgWorkbook.WorkSheets("10万人あたり")
                     .Activate 
@@ -683,31 +683,31 @@ Rem 日本国内    ：国内感染者/国内重症者/国内入退院/PCR 検査数
                 Rem --- 日本国内 ----------------------------------------------
                 With objDstWorkbook.WorkSheets("国内重症者")
                     RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("G989:G" & (RowsEnd + 989 - 874)).Value = .Range("B874:B" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("G" & (RowsEnd + 989 - 874) & ":G" & (RowsEnd + 989 - 874)).Value = .Range("B" & RowsEnd & ":B" & RowsEnd).Value
                 End With
                 With objDstWorkbook.WorkSheets("国内入退院")
                     RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("I117:I" & (RowsEnd + 117 - 2)).Value = .Range("B2:B" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("I" & (RowsEnd + 117 - 2) & ":I" & (RowsEnd + 117 - 2)).Value = .Range("B" & RowsEnd & ":B" & RowsEnd).Value
                     RowsEnd = .Cells(.Rows.Count, 3).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("J118:J" & (RowsEnd + 118 - 3)).Value = .Range("C3:C" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("J" & (RowsEnd + 118 - 3) & ":J" & (RowsEnd + 118 - 3)).Value = .Range("C" & RowsEnd & ":C" & RowsEnd).Value
                 End With
                 With objDstWorkbook.WorkSheets("PCR 検査数")
                     RowsEnd = .Cells(.Rows.Count, 10).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("K36:K" & (RowsEnd + 36 - 2)).Value = .Range("J2:J" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("K" & (RowsEnd + 36 - 2) & ":K" & (RowsEnd + 36 - 2)).Value = .Range("J" & RowsEnd & ":J" & RowsEnd).Value
                 End With
                 With objDstWorkbook.WorkSheets("各地死者数")
                     RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("E989:E" & (RowsEnd + 989 - 874)).Value = .Range("B874:B" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("E" & (RowsEnd + 989 - 874) & ":E" & (RowsEnd + 989 - 874)).Value = .Range("B" & RowsEnd & ":B" & RowsEnd).Value
                 End With
                 With objOrgWorkbook.WorkSheets("日本国内")
                     .Activate 
                     .Range("B" & (RowsEnd + 989 - 874)).Select
                 End With
                 Rem --- グラフ用 ----------------------------------------------
-                With objDstWorkbook.WorkSheets("各地10万人(順位)")
-                    RowsEnd = .Cells(.Rows.Count, 5).End(-4162).Row
-                    .Range("E2:E" & RowsEnd).Copy
-                End With
+Rem             With objDstWorkbook.WorkSheets("各地10万人(順位)")
+Rem                 RowsEnd = .Cells(.Rows.Count, 5).End(-4162).Row
+Rem                 .Range("E2:E" & RowsEnd).Copy
+Rem             End With
                 Rem --- 終了処理 ----------------------------------------------
                 objDstWorkbook.Close
                 objExcel.Quit
