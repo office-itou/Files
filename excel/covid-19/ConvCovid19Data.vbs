@@ -693,7 +693,7 @@ Rem                 objOrgWorkbook.WorkSheets("10万人あたり").Range("B" & (RowsE
                 End With
                 With objDstWorkbook.WorkSheets("PCR 検査数")
                     RowsEnd = .Cells(.Rows.Count, 10).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("K" & (RowsEnd + 36 - 2) & ":K" & (RowsEnd + 36 - 2)).Value = .Range("J" & RowsEnd & ":J" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("K36:K" & (RowsEnd + 36 - 2)).Value = .Range("H2:H" & RowsEnd).Value
                 End With
                 With objDstWorkbook.WorkSheets("各地死者数")
                     RowsEnd = .Cells(.Rows.Count, 2).End(-4162).Row
