@@ -189,7 +189,8 @@ Rem --- データー変換 ----------------------------------------------------------
                     OutValue(I, InpCount + 1, 0) = InpArray(I)                  Rem 日別
                     OutValue(I, InpCount + 1, 1) = InpArray(I)                  Rem 7日平均
                     OutValue(I, InpCount + 1, 2) = InpArray(I)                  Rem 10万人あたり
-                    OutValue(I, InpCount + 1, 3) = InpArray(I)                  Rem 10万人あたり(算出)
+                    OutValue(I, InpCount + 1, 3) = InpArray(I)                  Rem 10万人あたり(7日間平均)
+                    OutValue(I, InpCount + 1, 4) = InpArray(I)                  Rem 10万人あたり(算出)
                 Else
                     OutValue(I, InpCount + 1, 0) = InpArray(I)                  Rem 日別
                     If InpCount >= 6 Then
@@ -322,24 +323,25 @@ Rem --- データー変換 ----------------------------------------------------------
 
     Rem --- 日本国内[感染者数/死者数/重症者数/入院療養中/退院療養解除/PCR検査数]
     Erase OutValue
-    ReDim OutValue(15, 1999)
+    ReDim OutValue(16, 1999)
 
     OutValue( 0, 0) = "日付"
     OutValue( 1, 0) = "感染者数"
     OutValue( 2, 0) = "感染者数(7日間平均)"
     OutValue( 3, 0) = "感染者数(10万人あたり)"
-    OutValue( 4, 0) = "感染者数(累計)"
-    OutValue( 5, 0) = "死者数"
-    OutValue( 6, 0) = "死者数(7日間平均)"
-    OutValue( 7, 0) = "死者数(累計)"
-    OutValue( 8, 0) = "重症者数"
-    OutValue( 9, 0) = "重症者数(7日間平均)"
-    OutValue(10, 0) = "入院療養中"
-    OutValue(11, 0) = "退院療養解除"
-    OutValue(12, 0) = "退院療養解除(累計)"
-    OutValue(13, 0) = "PCR検査数"
-    OutValue(14, 0) = "陽性率"
-    OutValue(15, 0) = "陽性率(7日間平均値)"
+    OutValue( 4, 0) = "感染者数(10万人あたり・7日間平均)"
+    OutValue( 5, 0) = "感染者数(累計)"
+    OutValue( 6, 0) = "死者数"
+    OutValue( 7, 0) = "死者数(7日間平均)"
+    OutValue( 8, 0) = "死者数(累計)"
+    OutValue( 9, 0) = "重症者数"
+    OutValue(10, 0) = "重症者数(7日間平均)"
+    OutValue(11, 0) = "入院療養中"
+    OutValue(12, 0) = "退院療養解除"
+    OutValue(13, 0) = "退院療養解除(累計)"
+    OutValue(14, 0) = "PCR検査数"
+    OutValue(15, 0) = "陽性率"
+    OutValue(16, 0) = "陽性率(7日間平均値)"
 
     For I = 0 To OutCount
         OutValue( 0, I + 1) = DateList(I + 1)
@@ -369,7 +371,13 @@ Rem --- データー変換 ----------------------------------------------------------
             If IsNumeric(OutValue(4, InpCount + 1 - 1)) = False Then
                 OutValue(1, InpCount + 1) = InpArray(1)
             Else
-                OutValue(1, InpCount + 1) = InpArray(1) - OutValue(4, InpCount + 1 - 1)
+                OutValue(1, InpCount + 1) = InpArray(1) - OutValue(5, InpCount + 1 - 1)
+            End If
+                                                                                Rem 10万人あたり(日別)
+            If CDate(OutValue(0, InpCount + 1)) < CDate("2022/1/1") Then
+                OutValue(3, InpCount + 1) = CDbl(OutValue(1, InpCount + 1) / Population(3, 1, 0) * 100000)
+            Else
+                OutValue(3, InpCount + 1) = CDbl(OutValue(1, InpCount + 1) / Population(3, 1, 1) * 100000)
             End If
             If InpCount >= 6 Then
                 InpValue = 0
@@ -377,14 +385,16 @@ Rem --- データー変換 ----------------------------------------------------------
                     InpValue = InpValue + OutValue(1, InpCount + 1 - I)
                 Next
                 OutValue(2, InpCount + 1) = Round(InpValue / 7, 2)              Rem 7日間平均
-                                                                                Rem 10万人あたり
-                If CDate(OutValue(0, InpCount + 1)) < CDate("2022/1/1") Then
-                    OutValue(3, InpCount + 1) = CDbl(InpValue / Population(3, I, 0) * 100000)
-                Else
-                    OutValue(3, InpCount + 1) = CDbl(InpValue / Population(3, I, 1) * 100000)
+                If IsNumeric(OutValue(3, InpCount + 1 - 7)) = True Then
+                    InpValue = 0
+                    For J = 0 To 6
+                        InpValue = InpValue + OutValue(3, InpCount + 1 - J)
+                    Next
+                    OutValue(4, InpCount + 1) = InpValue                        Rem 10万人あたり(7日間合計)
                 End If
             End If
-            OutValue(4, InpCount + 1) = InpArray(1)        Rem 感染者数[累計・全国]
+
+            OutValue(5, InpCount + 1) = InpArray(1)        Rem 感染者数[累計・全国]
             InpCount = InpCount + 1
         Loop
         OutCount = InpCount
@@ -412,23 +422,23 @@ Rem --- データー変換 ----------------------------------------------------------
                 Next
             End If
                                                             Rem 死者数[日別・全国]
-            If IsNumeric(OutValue(5, InpCount + 1 - 1)) = False Then
-                OutValue(5, InpCount + 1) = InpArray(1)
+            If IsNumeric(OutValue(6, InpCount + 1 - 1)) = False Then
+                OutValue(6, InpCount + 1) = InpArray(1)
             Else
-                OutValue(5, InpCount + 1) = InpArray(1) - OutData
+                OutValue(6, InpCount + 1) = InpArray(1) - OutData
             End If
             OutData = InpArray(1)
                                                             Rem 7日間平均
             If InpCount >= 6 Then
-                If IsNumeric(OutValue(5, InpCount + 1 - 7)) = True Then
+                If IsNumeric(OutValue(6, InpCount + 1 - 7)) = True Then
                     InpValue = 0
                     For I = 0 To 6
-                        InpValue = InpValue + OutValue(5, InpCount + 1 - I)
+                        InpValue = InpValue + OutValue(6, InpCount + 1 - I)
                     Next
-                    OutValue(6, InpCount + 1) = Round(InpValue / 7, 2)
+                    OutValue(7, InpCount + 1) = Round(InpValue / 7, 2)
                 End If
             End If
-            OutValue(7, InpCount + 1) = InpArray(1)        Rem 死者数[累計・全国]
+            OutValue(8, InpCount + 1) = InpArray(1)        Rem 死者数[累計・全国]
             InpCount = InpCount + 1
         Loop
         .Close
@@ -453,15 +463,15 @@ Rem --- データー変換 ----------------------------------------------------------
                     End If
                 Next
             End If
-            OutValue(8, InpCount + 1) = InpArray(1)         Rem 重症者数[日別・全国]
+            OutValue(9, InpCount + 1) = InpArray(1)         Rem 重症者数[日別・全国]
                                                             Rem 7日間平均
             If InpCount >= 6 Then
-                If IsNumeric(OutValue(8, InpCount + 1 - 7)) = True Then
+                If IsNumeric(OutValue(9, InpCount + 1 - 7)) = True Then
                     InpValue = 0
                     For I = 0 To 6
-                        InpValue = InpValue + OutValue(8, InpCount + 1 - I)
+                        InpValue = InpValue + OutValue(9, InpCount + 1 - I)
                     Next
-                    OutValue(9, InpCount + 1) = Round(InpValue / 7, 2)
+                    OutValue(10, InpCount + 1) = Round(InpValue / 7, 2)
                 End If
             End If
             InpCount = InpCount + 1
@@ -489,14 +499,14 @@ Rem --- データー変換 ----------------------------------------------------------
                     End If
                 Next
             End If
-            OutValue(10, InpCount + 1) = InpArray(1)        Rem 入院療養中[日別・全国]
+            OutValue(11, InpCount + 1) = InpArray(1)        Rem 入院療養中[日別・全国]
                                                             Rem 退院療養解除[日別・全国]
-            If IsNumeric(OutValue(11, InpCount + 1 - 1)) = False Then
-                OutValue(11, InpCount + 1) = InpArray(2)
+            If IsNumeric(OutValue(12, InpCount + 1 - 1)) = False Then
+                OutValue(12, InpCount + 1) = InpArray(2)
             Else
-                OutValue(11, InpCount + 1) = InpArray(2) - OutData
+                OutValue(12, InpCount + 1) = InpArray(2) - OutData
             End If
-            OutValue(12, InpCount + 1) = InpArray(2)        Rem 退院療養解除[累計・全国]
+            OutValue(13, InpCount + 1) = InpArray(2)        Rem 退院療養解除[累計・全国]
             OutData = InpArray(2)
             InpCount = InpCount + 1
         Loop
@@ -522,7 +532,7 @@ Rem --- データー変換 ----------------------------------------------------------
                     End If
                 Next
             End If
-            OutValue(13, InpCount + 1) = InpArray(9)        Rem PCR検査数
+            OutValue(14, InpCount + 1) = InpArray(9)        Rem PCR検査数
             InpCount = InpCount + 1
         Loop
         .Close
@@ -535,7 +545,7 @@ Rem --- データー変換 ----------------------------------------------------------
         .Open
         For I = 0 To OutCount
             OutLine = ""
-            For J = 0 To 13
+            For J = 0 To 14
                 If OutLine = "" Then
                     OutLine = OutValue(J, I)
                 Else
@@ -612,7 +622,7 @@ Rem --- Excel -----------------------------------------------------------------
                 Rem --- 日本国内 ----------------------------------------------
                 With objDstWorkbook.WorkSheets("日本国内")
                     RowsEnd = .Cells(.Rows.Count, 1).End(-4162).Row
-                    objOrgWorkbook.WorkSheets("日本国内").Range("A1:N" & RowsEnd).Value = .Range("A1:N" & RowsEnd).Value
+                    objOrgWorkbook.WorkSheets("日本国内").Range("A1:O" & RowsEnd).Value = .Range("A1:O" & RowsEnd).Value
                 End With
                 With objOrgWorkbook.WorkSheets("日本国内")
                     .Activate 
@@ -693,16 +703,17 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
                 .Range("B2:B" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("C2:C" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
                 .Range("D2:D" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
-                .Range("E2:E" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("E2:E" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
                 .Range("F2:F" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
-                .Range("G2:G" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
-                .Range("H2:H" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("G2:G" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("H2:H" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
                 .Range("I2:I" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
-                .Range("J2:J" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
-                .Range("K2:K" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("J2:J" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("K2:K" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
                 .Range("L2:L" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("M2:M" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("N2:N" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("O2:O" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
             Case "順位付け"
                 With .Range("A1:E1")
                     .HorizontalAlignment = -4108
