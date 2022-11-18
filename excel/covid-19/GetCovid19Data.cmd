@@ -68,6 +68,6 @@ Rem HER-SYSデータに基づく新規陽性者数
 
     popd
 
-    CScript ./ConvCovid19Data.vbs
+    CScript ./MakeCovid19Graph.vbs
 
 Rem Pause.
