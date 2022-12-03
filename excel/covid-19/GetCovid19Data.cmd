@@ -2,6 +2,7 @@
 
     if not exist .\data\. mkdir .\data
     if not exist .\conv\. mkdir .\conv
+    if not exist .\grph\. mkdir .\grph
 
     pushd .\data
 
