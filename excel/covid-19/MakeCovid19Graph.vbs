@@ -783,7 +783,7 @@ Rem     .Visible = True
     End With
 
     Rem -----------------------------------------------------------------------
-    With objDstWorkbook.WorkSheets("グラフ")
+    With objDstWorkbook.Worksheets("グラフ")
         .Activate
         .Range("A1").Select
     End With
@@ -901,8 +901,14 @@ Sub MakeGraph1(objGrphWorksheet, objSrcWorksheet, objChart, MessageText, ChartTi
     Dim RecordsetCount                  'データーラベル件数
     Dim Point(1, 47, 3)                 'データーラベル情報
     Dim objRecordset(1)                 'ソート用オブジェクト
+    Dim objWorksheetRank                '
+    Dim objRangeRank                    '
 
     WScript.Echo MessageText
+
+    Rem --- 順位付け関連 ------------------------------------------------------
+    Set objWorksheetRank = objDstWorkbook.Worksheets("順位付け")
+    Set objRangeRank = objWorksheetRank.Range("B2:B4")
     Rem --- データーソース関連 ------------------------------------------------
     With objSrcWorksheet
         LatestRow = .Cells(.Rows.Count, 2).End(-4162).Row   '合計列
@@ -927,11 +933,14 @@ Sub MakeGraph1(objGrphWorksheet, objSrcWorksheet, objChart, MessageText, ChartTi
             objExcel.Application.ScreenUpdating = False
             For I = 1 To .FullSeriesCollection.Count
                 Select Case I
-                    Case 2, 5, 7, 8, 12, 13, 14, 15, 21, 24, 28, 37, 41, 48
+                    Case 2, 12, 13, 14, 15, 24, 28, 37, 41, 48
                         .FullSeriesCollection(I).IsFiltered = False
                     Case Else
                         .FullSeriesCollection(I).IsFiltered = True
                 End Select
+                If Not objRangeRank.Find((I - 1), , -4123, 1) Is Nothing Then
+                    .FullSeriesCollection(I).IsFiltered = False
+                End If
             Next
             objExcel.Application.ScreenUpdating = True
             Rem --- 選択されたグラフの描画 ------------------------------------
