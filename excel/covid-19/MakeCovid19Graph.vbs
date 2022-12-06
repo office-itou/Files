@@ -358,7 +358,7 @@ Rem --- ƒf[ƒ^[•ÏŠ· ----------------------------------------------------------
 
     Rem --- “ú–{‘“à[Š´õÒ”/€Ò”/dÇÒ”/“ü‰@—Ã—{’†/‘Ş‰@—Ã—{‰ğœ/PCRŒŸ¸”]
     Erase OutValue
-    ReDim OutValue(16, UBound(DateList))
+    ReDim OutValue(17, UBound(DateList))
 
     OutValue(0, 0) = "“ú•t"
     OutValue(1, 0) = "Š´õÒ”"
@@ -374,9 +374,10 @@ Rem --- ƒf[ƒ^[•ÏŠ· ----------------------------------------------------------
     OutValue(11, 0) = "“ü‰@—Ã—{’†"
     OutValue(12, 0) = "‘Ş‰@—Ã—{‰ğœ"
     OutValue(13, 0) = "‘Ş‰@—Ã—{‰ğœ(—İŒv)"
-    OutValue(14, 0) = "PCRŒŸ¸”"
-    OutValue(15, 0) = "—z«—¦"
-    OutValue(16, 0) = "—z«—¦(7“úŠÔ•½‹Ï’l)"
+    OutValue(14, 0) = "PCRŒŸ¸”(©”ïŒŸ¸‚ğœ‚­)"
+    OutValue(15, 0) = "PCRŒŸ¸”(©”ïŒŸ¸‚ğŠÜ‚Ş)"
+    OutValue(16, 0) = "—z«—¦"
+    OutValue(17, 0) = "—z«—¦(7“úŠÔ•½‹Ï’l)"
 
     For I = 0 To OutCount - 1
         OutValue(0, I + 1) = DateList(I + 1)
@@ -567,7 +568,8 @@ Rem     OutCount = InpCount
                     End If
                 Next
             End If
-            OutValue(14, InpCount + 1) = InpArray(9)        Rem PCRŒŸ¸”
+            OutValue(14, InpCount + 1) = InpArray(7)        Rem PCRŒŸ¸”(©”ïŒŸ¸‚ğœ‚­)
+            OutValue(15, InpCount + 1) = InpArray(9)        Rem PCRŒŸ¸”(©”ïŒŸ¸‚ğŠÜ‚Ş)
             InpCount = InpCount + 1
         Loop
         .Close
@@ -580,7 +582,7 @@ Rem     OutCount = InpCount
         .Open
         For I = 0 To OutCount - 1
             OutLine = ""
-            For J = 0 To 14
+            For J = 0 To 15
                 If OutLine = "" Then
                     OutLine = OutValue(J, I)
                 Else
@@ -845,8 +847,8 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
                 .Range("A1:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
                 .Range("B2:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.0"
             Case "“ú–{‘“à"
-                .Range("A1:O1").HorizontalAlignment = -4108
-                .Range("A1:O" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
+                .Range("A1:P1").HorizontalAlignment = -4108
+                .Range("A1:P" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
                 .Range("B2:B" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("C2:C" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
                 .Range("D2:D" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
@@ -861,6 +863,7 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
                 .Range("M2:M" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("N2:N" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("O2:O" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+                .Range("P2:P" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("G116").FormatConditions.Delete
             Case "‡ˆÊ•t‚¯"
                 .Range("A1:E1").HorizontalAlignment = -4108
