@@ -936,7 +936,7 @@ Sub MakeGraph1(objGrphWorksheet, objSrcWorksheet, objChart, MessageText, ChartTi
             objExcel.Application.ScreenUpdating = False
             For I = 1 To .FullSeriesCollection.Count
                 Select Case I
-                    Case 2, 12, 13, 14, 15, 24, 28, 37, 41, 48
+                    Case 2, 12, 13, 14, 15, 24, 28, 37, 41, 47, 48
                         .FullSeriesCollection(I).IsFiltered = False
                     Case Else
                         .FullSeriesCollection(I).IsFiltered = True
@@ -984,7 +984,7 @@ Sub MakeGraph1(objGrphWorksheet, objSrcWorksheet, objChart, MessageText, ChartTi
                                 .ForeColor.RGB = RGB(255, 255, 0)
                             End With
                             .Left = .Left - 20
-                            .Height = 8.5
+                            .Height = .Font.Size + 1.5
                             .Top = PointTop - .Height / 2
                         End With
                     End With
@@ -1013,7 +1013,7 @@ Rem                         .ShowCategoryName = -1
                                 .ForeColor.RGB = RGB(255, 255, 0)
                             End With
                             .Left = .Left + 20
-                            .Height = 8.5
+                            .Height = .Font.Size + 1.5
                             .Top = PointTop - .Height / 2
                         End With
                     End With
@@ -1205,7 +1205,7 @@ Sub MakeGraph2(objGrphWorksheet, objSrcWorksheet, objChart, MessageText, ChartTi
                                 .ForeColor.RGB = RGB(255, 255, 0)
                             End With
                             .Left = .Left - 20
-                            .Height = 8.5
+                            .Height = .Font.Size + 1.5
                             .Top = PointTop - .Height / 2
                         End With
                     End With
@@ -1234,7 +1234,7 @@ Rem                         .ShowCategoryName = -1
                                 .ForeColor.RGB = RGB(255, 255, 0)
                             End With
                             .Left = .Left + 20
-                            .Height = 8.5
+                            .Height = .Font.Size + 1.5
                             .Top = PointTop - .Height / 2
                         End With
                     End With
