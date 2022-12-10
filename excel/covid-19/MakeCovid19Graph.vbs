@@ -664,7 +664,6 @@ Rem     .Visible = False
         .Height = 585
         .ChartTitleText = "感染者数"
         Call MakeGraph(clsGraph, "描画：1: " & .ChartTitleText, False)
-Rem     Call MakeGraph1(clsGraph, "描画：1: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  2: 7日間平均 -----------------------------------------------------
@@ -678,7 +677,6 @@ Rem     Call MakeGraph1(clsGraph, "描画：1: " & .ChartTitleText, False)
         .Height = 585
         .ChartTitleText = "感染者数の7日間平均"
         Call MakeGraph(clsGraph, "描画：2: " & .ChartTitleText, False)
-Rem     Call MakeGraph1(clsGraph, "描画：2: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  3: 10万人あたりの感染者数 ----------------------------------------
@@ -692,7 +690,6 @@ Rem     Call MakeGraph1(clsGraph, "描画：2: " & .ChartTitleText, False)
         .Height = 585
         .ChartTitleText = "感染者数の10万人あたり7日間平均"
         Call MakeGraph(clsGraph, "描画：3: " & .ChartTitleText, False)
-Rem     Call MakeGraph1(clsGraph, "描画：3: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  4: 感染者数（東京都） --------------------------------------------
@@ -724,7 +721,6 @@ Rem     Call MakeGraph1(clsGraph, "描画：3: " & .ChartTitleText, False)
             .AxisGroup = 2
         End With
         Call MakeGraph(clsGraph, "描画：4: " & .ChartTitleText, False)
-Rem     Call MakeGraph2(clsGraph, "描画：4: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  5: 感染者数（日本国内） ------------------------------------------
@@ -756,7 +752,6 @@ Rem     Call MakeGraph2(clsGraph, "描画：4: " & .ChartTitleText, False)
             .AxisGroup = 2
         End With
         Call MakeGraph(clsGraph, "描画：5: " & .ChartTitleText, False)
-Rem     Call MakeGraph2(clsGraph, "描画：5: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  6: 死者重症者数 --------------------------------------------------
@@ -794,7 +789,6 @@ Rem     Call MakeGraph2(clsGraph, "描画：5: " & .ChartTitleText, False)
             .AxisGroup = 1
         End With
         Call MakeGraph(clsGraph, "描画：6: " & .ChartTitleText, False)
-Rem     Call MakeGraph2(clsGraph, "描画：6: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
     Rem ---  7: 直近7日間の人口10万人当たりの新規感染者数 ---------------------
@@ -808,7 +802,6 @@ Rem     Call MakeGraph2(clsGraph, "描画：6: " & .ChartTitleText, False)
         .Height = 585
         .ChartTitleText = "感染者数の10万人あたり7日間平均（抜粋）"
         Call MakeGraph(clsGraph, "描画：7: " & .ChartTitleText, True)
-Rem     Call MakeGraph1(clsGraph, "描画：7: " & .ChartTitleText, True)
     End With
     Set clsGraph = Nothing
     Rem --- テキストボックスの描画 --------------------------------------------
