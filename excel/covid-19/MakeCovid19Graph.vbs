@@ -818,7 +818,7 @@ Rem     .Visible = False
                     .NameComplexScript = "Meiryo UI"
                     .NameFarEast = "Meiryo UI"
                     .Name = "Meiryo UI"
-                    .Size = 8
+                    .Size = 6
                 End With
             End With
             .Fill.ForeColor.RGB = RGB(255, 255, 0)
@@ -1045,10 +1045,16 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
         objExcel.Application.ScreenUpdating = False
         .ChartArea.Font.Name = "Meiryo UI"
         .ChartArea.Font.Size = 8
+        Rem --- タイトル ------------------------------------------------------
         .HasTitle = True
         .ChartTitle.Text = clsGraph.ChartTitleText
+        .ChartTitle.Font.Size = 8
+        Rem --- グラフの種類 --------------------------------------------------
         .ChartType = 4
+        Rem --- 凡例 ----------------------------------------------------------
         .Legend.Position = -4107
+        .Legend.Font.Size = 6
+        Rem --- データーの選択 ------------------------------------------------
         If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
             .SetSourceData objWorksheetData.Range("A1:AW" & RowsEnd)
         Else
@@ -1064,8 +1070,17 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 End If
             Next
         End If
+        Rem --- 横（項目）軸 --------------------------------------------------
+        .Axes(1).TickLabels.Font.Size = 6
+        Rem --- 縦（値）軸 ----------------------------------------------------
+        .Axes(2).TickLabels.Font.Size = 6
+        If .Axes.Count > 2 Then
+            .Axes(2, 2).TickLabels.Font.Size = 6
+        End If
+        Rem -------------------------------------------------------------------
         objExcel.Application.ScreenUpdating = True
         objWorksheetGrph.Range(objChart.TopLeftCell.Address(False, False)).Select
+        Rem -------------------------------------------------------------------
         objExcel.Application.ScreenUpdating = False
         For I = 1 To .FullSeriesCollection.Count
             If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
