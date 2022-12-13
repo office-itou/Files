@@ -19,7 +19,11 @@ Rem ---------------------------------------------------------------------------
     End If
 
 Rem ---------------------------------------------------------------------------
-    WScript.Echo Now
+    Dim StartTime
+    Dim EndTime
+
+    StartTime = CDate(Now)
+    WScript.Echo FormatDateTime(StartTime)
 
 Rem ---------------------------------------------------------------------------
     Dim Ret
@@ -913,7 +917,10 @@ Rem ---------------------------------------------------------------------------
     Set objFSO = Nothing
 
 Rem ---------------------------------------------------------------------------
-    WScript.Echo Now
+    EndTime = CDate(Now)
+
+    WScript.Echo "経過：" & FormatSecond2DateTime(DateDiff("s", StartTime, EndTime))
+    WScript.Echo FormatDateTime(EndTime)
 
 Rem ---------------------------------------------------------------------------
     Ret = MsgBox("completed", vbOKOnly)
@@ -1032,6 +1039,10 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
     With clsGraph
         Set objChart = .WorksheetGrph.ChartObjects.Add(.Left, .Top, .Width, .Height)
     End With
+    Rem -----------------------------------------------------------------------
+    objExcel.Application.ScreenUpdating = True
+    objWorksheetGrph.Range(objChart.TopLeftCell.Address(False, False)).Select
+    objExcel.Application.ScreenUpdating = False
     Rem --- 順位付け関連 ------------------------------------------------------
     Set objWorksheetRank = objDstWorkbook.Worksheets("順位付け")
     Set objRangeRank = objWorksheetRank.Range("B2:B4")
@@ -1042,7 +1053,6 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
     End With
     Rem --- グラフの描画 ------------------------------------------------------
     With objChart.Chart
-        objExcel.Application.ScreenUpdating = False
         .ChartArea.Font.Name = "Meiryo UI"
         .ChartArea.Font.Size = 8
         Rem --- タイトル ------------------------------------------------------
@@ -1070,22 +1080,33 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 End If
             Next
         End If
-        Rem --- 横（項目）軸 --------------------------------------------------
-        .Axes(1).TickLabels.Font.Size = 6
-        Rem --- 縦（値）軸 ----------------------------------------------------
-        .Axes(2).TickLabels.Font.Size = 6
-        If .Axes.Count > 2 Then
-            .Axes(2, 2).TickLabels.Font.Size = 6
+        Rem --- 表示範囲の設定 ------------------------------------------------
+        If LatestFlag = True Then
+            .Axes(1, 1).MinimumScale = CDbl(CDate("2022/01/01"))
+            .Axes(1, 1).MaximumScale = CDbl(CDate("2023/06/30"))
+            .Axes(1, 1).MajorUnit = 7                       '7日単位
+            .Axes(1, 1).MajorUnitScale = 0                  '日単位
+        Else
+            .Axes(1, 1).MinimumScale = CDbl(CDate("2020/01/01"))
+            .Axes(1, 1).MaximumScale = CDbl(CDate("2024/12/31"))
+            .Axes(1, 1).MajorUnit = 1                       '1月単位
+            .Axes(1, 1).MajorUnitScale = 1                  '月単位
         End If
-        Rem -------------------------------------------------------------------
+        Rem --- 縦横軸の設定 --------------------------------------------------
+        .Axes(1, 1).TickLabels.Font.Size = 6                '横（項目）軸
+        .Axes(2, 1).TickLabels.Font.Size = 6                '縦（値）軸（プライマリー）
+        If .Axes.Count > 2 Then
+            .Axes(2, 2).TickLabels.Font.Size = 6            '縦（値）軸（セカンダリー）
+        End If
         objExcel.Application.ScreenUpdating = True
-        objWorksheetGrph.Range(objChart.TopLeftCell.Address(False, False)).Select
         Rem -------------------------------------------------------------------
         objExcel.Application.ScreenUpdating = False
         For I = 1 To .FullSeriesCollection.Count
             If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
                 Rem --- グラフの表示制御 --------------------------------------
                 Select Case I
+                    Case 1
+                        .FullSeriesCollection(I).IsFiltered = True
                     Case 2, 12, 13, 14, 15, 24, 28, 37, 41, 47, 48
                         .FullSeriesCollection(I).IsFiltered = False
                     Case Else
@@ -1097,7 +1118,7 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 Rem --- 選択されたグラフの最大値の位置を取得 ------------------
                 If .FullSeriesCollection(I).IsFiltered = False Then
                     With objWorksheetData
-                        Set objRangeMax = .Range(.Cells(2, I + 1), .Cells(RowsEnd, I + 1))
+                        Set objRangeMax = .Range(.Cells(2, I + 1), .Cells(LatestRow, I + 1))
                         MaxValue = objExcel.Max(objRangeMax)
                         With objRangeMax.Find(MaxValue, , -4123, 1)
                             MaxColumn = .Column - 1
@@ -1110,9 +1131,9 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 If .FullSeriesCollection(I).IsFiltered = False Then
                     aryStrings = Split(Mid(clsGraph.Collection(I - 1).Values, 2), "!")
                     If aryStrings(0) = "日本国内" And Left(aryStrings(1), 2) = "$G" Then
-                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$G$117:$G$" & RowsEnd)
+                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$G$117:$G$" & LatestRow)
                     Else
-                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range(aryStrings(1) & RowsEnd)
+                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range(aryStrings(1) & LatestRow)
                     End If
                     MaxValue = objExcel.Max(objRangeMax)
                     With objRangeMax.Find(MaxValue, , -4123, 1)
@@ -1189,8 +1210,8 @@ Rem                     .ShowCategoryName = -1
                 RecordsetCount = RecordsetCount + 1
             End If
         Next
-        objExcel.Application.ScreenUpdating = True
         Rem --- データーラベルの取得 ------------------------------------------
+        objExcel.Application.ScreenUpdating = True
         For I = 0 To 1
             For J = 0 To RecordsetCount - 1
                 With .FullSeriesCollection(Point(I, J, 0)).Points(Point(I, J, 1)).DataLabel
@@ -1199,8 +1220,8 @@ Rem                     .ShowCategoryName = -1
                 End With
             Next
         Next
-        Rem --- データーラベルの調整 ------------------------------------------
         objExcel.Application.ScreenUpdating = False
+        Rem --- データーラベルの調整 ------------------------------------------
         For I = 0 To 1
             Set objRecordset(I) = CreateObject("ADODB.Recordset")
             With objRecordset(I)
@@ -1237,28 +1258,53 @@ Rem                     .ShowCategoryName = -1
             End With
             Set objRecordset(I) = Nothing
         Next
-        objExcel.Application.ScreenUpdating = True
-        Rem --- 表示範囲の設定 ------------------------------------------------
-        objExcel.Application.ScreenUpdating = False
-        If LatestFlag = True Then
-            .Axes(1, 1).MinimumScale = CDbl(CDate("2022/01/01"))
-            .Axes(1, 1).MaximumScale = CDbl(CDate("2023/06/30"))
-            .Axes(1, 1).MajorUnit = 7                       '7日単位
-            .Axes(1, 1).MajorUnitScale = 0                  '日単位
-        Else
-            .Axes(1, 1).MinimumScale = CDbl(CDate("2020/01/01"))
-            .Axes(1, 1).MaximumScale = CDbl(CDate("2024/12/31"))
-            .Axes(1, 1).MajorUnit = 1                       '1月単位
-            .Axes(1, 1).MajorUnitScale = 1                  '月単位
-        End If
-        objExcel.Application.ScreenUpdating = True
     End With
-    objExcel.Application.ScreenUpdating = False
     With objWorksheetGrph
         .Shapes(.Shapes.Count).AlternativeText = clsGraph.ChartTitleText
     End With
     objExcel.Application.ScreenUpdating = True
 End Sub
+
+Function FormatDateTime(DateTimeValue)
+    Dim strYear
+    Dim strMonth
+    Dim strDay
+    Dim strHour
+    Dim strMinute
+    Dim strSecond
+    Dim strWeekday
+
+    If IsDate(DateTimeValue) = False Then
+        FormatDateTime = Null
+        Exit Function
+    End If
+
+    strYear = Right("0000" & Year(Now), 4)
+    strMonth = Right("00" & Month(DateTimeValue), 2)
+    strDay = Right("00" & Day(DateTimeValue), 2)
+    strHour = Right("00" & Hour(DateTimeValue), 2)
+    strMinute = Right("00" & Minute(DateTimeValue), 2)
+    strSecond = Right("00" & Second(DateTimeValue), 2)
+    strWeekday = WeekdayName(Weekday(DateTimeValue), True)
+
+    FormatDateTime = strYear & "/" & strMonth & "/" & strDay & "(" & strWeekday & ")" & " " & strHour & ":" & strMinute & ":" & strSecond
+End Function
+
+Function FormatSecond2DateTime(SecondValue)
+    Dim strHour
+    Dim strMinute
+    Dim strSecond
+
+    If (SecondValue \ 3600) < 100 Then
+        strHour = Right("00" & SecondValue \ 3600, 2)
+    Else
+        strHour = SecondValue \ 3600
+    End If
+    strMinute = Right("00" & SecondValue \ 60 Mod 60, 2)
+    strSecond = Right("00" & SecondValue Mod 60, 2)
+
+    FormatSecond2DateTime = strHour & ":" & strMinute & ":" & strSecond
+End Function
 
 Rem --- Memo ------------------------------------------------------------------
 Rem objExcel.Workbooks.OpenText FileName, _
