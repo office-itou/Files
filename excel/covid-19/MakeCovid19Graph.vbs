@@ -929,7 +929,6 @@ Rem WScript.Quit
 Rem ---------------------------------------------------------------------------
 Sub MakeExcelFile(WorkSheetName, InpFileName)
     WScript.Echo "抽出：" & InpFileName
-    objExcel.Application.ScreenUpdating = False
     objExcel.Workbooks.OpenText OutDir & "\" & InpFileName, 65001, , , , , True
     Set objSrcWorkbook = objExcel.Workbooks.Item(objExcel.Workbooks.Count)
     objSrcWorkbook.Worksheets(1).Name = WorkSheetName
@@ -938,6 +937,7 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
         .ActiveWindow.FreezePanes = False
         .Range("B2").Select
         .ActiveWindow.FreezePanes = True
+        .Application.ScreenUpdating = False
         Select Case WorkSheetName
             Case "順位付け"
             Case Else
@@ -1005,10 +1005,10 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
         Else
             .Range("B2").Select
         End If
+        .Application.ScreenUpdating = True
     End With
     objSrcWorkbook.Worksheets(1).Move , objDstWorkbook.Worksheets(objDstWorkbook.Sheets.Count)
     Set objSrcWorkbook = Nothing
-    objExcel.Application.ScreenUpdating = True
 End Sub
 
 Rem ---------------------------------------------------------------------------
@@ -1045,7 +1045,7 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
     objExcel.Application.ScreenUpdating = False
     Rem --- 順位付け関連 ------------------------------------------------------
     Set objWorksheetRank = objDstWorkbook.Worksheets("順位付け")
-    Set objRangeRank = objWorksheetRank.Range("B2:B4")
+    Set objRangeRank = objWorksheetRank.Range("B2:B6")      '上位5件
     Rem --- データーソース関連 ------------------------------------------------
     With objWorksheetData
         LatestRow = .Cells(.Rows.Count, 2).End(-4162).Row   '合計列
@@ -1101,9 +1101,9 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
         objExcel.Application.ScreenUpdating = True
         Rem -------------------------------------------------------------------
         objExcel.Application.ScreenUpdating = False
-        For I = 1 To .FullSeriesCollection.Count
-            If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
-                Rem --- グラフの表示制御 --------------------------------------
+        Rem --- グラフの表示制御 ----------------------------------------------
+        If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
+            For I = 1 To .FullSeriesCollection.Count
                 Select Case I
                     Case 1
                         .FullSeriesCollection(I).IsFiltered = True
@@ -1115,8 +1115,13 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 If Not objRangeRank.Find((I - 1), , -4123, 1) Is Nothing Then
                     .FullSeriesCollection(I).IsFiltered = False
                 End If
+            Next
+        End If
+        Rem --- データーラベルの描画 ------------------------------------------
+        For I = 1 To .FullSeriesCollection.Count
+            If .FullSeriesCollection(I).IsFiltered = False Then
                 Rem --- 選択されたグラフの最大値の位置を取得 ------------------
-                If .FullSeriesCollection(I).IsFiltered = False Then
+                If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
                     With objWorksheetData
                         Set objRangeMax = .Range(.Cells(2, I + 1), .Cells(LatestRow, I + 1))
                         MaxValue = objExcel.Max(objRangeMax)
@@ -1125,10 +1130,8 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                             MaxRow = .Row - 1
                         End With
                     End With
-                End If
-            Else
+                Else
                 Rem --- 選択されたグラフの最大値の位置を取得 ------------------
-                If .FullSeriesCollection(I).IsFiltered = False Then
                     aryStrings = Split(Mid(clsGraph.Collection(I - 1).Values, 2), "!")
                     If aryStrings(0) = "日本国内" And Left(aryStrings(1), 2) = "$G" Then
                         Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$G$117:$G$" & LatestRow)
