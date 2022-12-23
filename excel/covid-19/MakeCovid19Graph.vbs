@@ -1031,8 +1031,32 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
     Dim objWorksheetRank                'Worksheet:順位付け
     Dim objRangeRank                    '順位付け上位３位までの範囲
     Dim aryStrings                      '
+    Dim varDate                         '
+    Dim intYear                         '
+    Dim intMonth                        '
+    Dim intDay                          '
+    Dim varDateMin                      '
+    Dim varDateMax                      '
+    Dim varDateEnd                      '
 
     WScript.Echo MessageText
+    Rem -----------------------------------------------------------------------
+    varDate = CDate(Now)
+    intYear = Year(varDate)
+    intMonth = Month(varDate)
+    intDay = Day(varDate)
+    If intMonth > 6 Then
+        varDateMin = DateSerial(intYear, 1, 1)
+        varDateMax = DateSerial(intYear + 1, 12, 31)
+    Else
+        varDateMin = DateSerial(intYear - 1, 1, 1)
+        varDateMax = DateSerial(intYear, 12, 31)
+    End If
+    If intYear > 2022 Then
+        varDateEnd = DateSerial(intYear + 1, 12, 31)
+    Else
+        varDateEnd = DateSerial(intYear + 2, 12, 31)
+    End If
     Rem -----------------------------------------------------------------------
     Set objWorksheetGrph = clsGraph.WorksheetGrph
     Set objWorksheetData = clsGraph.WorksheetData
@@ -1080,15 +1104,36 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                 End If
             Next
         End If
+        Rem --- テキストボックスの描画 ----------------------------------------
+        objExcel.Application.ScreenUpdating = False
+        With .Shapes.AddLabel(1, 0, 0, 72, 72)
+            With .TextFrame.Characters
+                .Text = FormatDateTime(StartTime) & " 現在"
+            End With
+            With .TextFrame2
+                .AutoSize = 1
+                .WordWrap = 0
+                With .TextRange.Font
+                    .NameComplexScript = "Meiryo UI"
+                    .NameFarEast = "Meiryo UI"
+                    .Name = "Meiryo UI"
+                    .Size = 6
+                End With
+            End With
+            .Fill.ForeColor.RGB = RGB(255, 255, 0)
+            .Top = 2
+            .Left = 12
+        End With
+        objExcel.Application.ScreenUpdating = True
         Rem --- 表示範囲の設定 ------------------------------------------------
         If LatestFlag = True Then
-            .Axes(1, 1).MinimumScale = CDbl(CDate("2022/01/01"))
-            .Axes(1, 1).MaximumScale = CDbl(CDate("2023/06/30"))
+            .Axes(1, 1).MinimumScale = CDbl(varDateMin)
+            .Axes(1, 1).MaximumScale = CDbl(varDateMax)
             .Axes(1, 1).MajorUnit = 7                       '7日単位
             .Axes(1, 1).MajorUnitScale = 0                  '日単位
         Else
             .Axes(1, 1).MinimumScale = CDbl(CDate("2020/01/01"))
-            .Axes(1, 1).MaximumScale = CDbl(CDate("2024/12/31"))
+            .Axes(1, 1).MaximumScale = CDbl(varDateEnd)
             .Axes(1, 1).MajorUnit = 1                       '1月単位
             .Axes(1, 1).MajorUnitScale = 1                  '月単位
         End If
@@ -1157,6 +1202,8 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                         .Separator = " "
                         .Font.Name = "Meiryo UI"
                         .Font.Size = 6
+Rem                     .Font.Color = RGB(255, 0, 0)
+Rem                     .Font.ColorIndex = 11
                         .Position = -4131
                         With .Format.TextFrame2
                             .AutoSize = 1
@@ -1168,7 +1215,7 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
                         End With
                         With .Format.Fill
                             .Visible = -1
-                            .ForeColor.RGB = RGB(255, 255, 0)
+                            .ForeColor.SchemeColor = 6 + 7
                         End With
                         .Left = .Left - 20
                         .Height = .Font.Size + 1.5
@@ -1197,7 +1244,11 @@ Rem                     .ShowCategoryName = -1
                         End With
                         With .Format.Fill
                             .Visible = -1
-                            .ForeColor.RGB = RGB(255, 255, 0)
+                            If LatestRow - 1 = MaxRow Then
+                                .ForeColor.SchemeColor = 38 + 7
+                            Else
+                                .ForeColor.SchemeColor = 6 + 7
+                            End If
                         End With
                         .Left = .Left + 20
                         .Height = .Font.Size + 1.5
