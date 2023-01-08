@@ -46,6 +46,7 @@ Rem ---------------------------------------------------------------------------
     Dim OutCount
     Dim OutLine
     Dim OutValue()
+    Dim OutDatas()
     Dim OutData
     Dim OutDate
     Rem -----------------------------------------------------------------------
@@ -101,7 +102,7 @@ Class ClassGraph
     Public Width                                            '   〃   :描画する幅
     Public Height                                           '   〃   :描画する高さ
     Public ChartTitleText                                   'グラフタイトル
-    Public Collection(3)                                    'グラフ情報
+    Public Collection(9)                                    'グラフ情報
 
     Private Sub Class_Initialize()
         For I = LBound(Collection) To UBound(Collection)
@@ -181,9 +182,9 @@ Rem --- データー変換 ----------------------------------------------------------
 
     Rem --- 都道府県ごとの感染者数[日別/7日間平均/10万人あたり] -----------------
     Erase OutValue
-    ReDim OutValue(48, UBound(DateList), 4)
+    ReDim OutValue(48, UBound(DateList), 6)
 
-    For I = 0 To 4
+    For I = 0 To 6
         OutValue(0, 0, I) = "日付"
         OutValue(1 + 0, 0, I) = "国内合計"
         OutValue(1 + 1, 0, I) = "北海道"
@@ -254,6 +255,8 @@ Rem --- データー変換 ----------------------------------------------------------
                     OutValue(I, InpCount + 1, 2) = InpArray(I)                  '10万人あたり
                     OutValue(I, InpCount + 1, 3) = InpArray(I)                  '10万人あたり(7日間平均)
                     OutValue(I, InpCount + 1, 4) = InpArray(I)                  '10万人あたり(算出)
+                    OutValue(I, InpCount + 1, 5) = InpArray(I)                  '死者数(都道府県別)
+                    OutValue(I, InpCount + 1, 6) = InpArray(I)                  '死者数(都道府県別:7日間平均)
                 Else
                     OutValue(I, InpCount + 1, 0) = InpArray(I)                  '日別
                     If InpCount >= 6 Then
@@ -314,6 +317,54 @@ Rem --- データー変換 ----------------------------------------------------------
         .Close
     End With
     Rem -----------------------------------------------------------------------
+    InpFileName = "deaths_cumulative_daily.csv"
+    WScript.Echo "読出：" & InpFileName
+    Erase OutDatas
+    ReDim OutDatas(1999)
+    With CreateObject("ADODB.Stream")
+        .Charset = "UTF-8"
+        .Open
+        .LoadFromFile InpDir & "\" & InpFileName
+        InpLine = .ReadText(-2)
+        InpCount = 0
+        For I = 1 To 48
+            OutDatas(I) = 0
+        Next
+        Do Until .EOS
+            InpLine = .ReadText(-2)
+            InpArray = Split(InpLine, ",")
+            If InpCount = 0 Then
+                For I = 1 To OutCount
+                    If CDate(OutValue(0, I, 5)) = CDate(InpArray(0)) Then
+                        InpCount = I - 1
+                        Exit For
+                    End If
+                Next
+            End If
+            For I = 1 To 48
+                If IsNumeric(OutValue(I, InpCount + 1 - 1, 5)) = False Then
+                    OutValue(I, InpCount + 1, 5) = InpArray(I)
+                Else
+                    OutValue(I, InpCount + 1, 5) = InpArray(I) - OutDatas(I)
+                End If
+                OutDatas(I) = InpArray(I)
+Rem             If InpCount >= 6 Then
+                If InpCount >= 6 + 116 Then
+                    If IsNumeric(OutValue(I, InpCount + 1 - 7, 2)) = True Then
+                        InpValue = 0
+                        For J = 0 To 6
+                            InpValue = InpValue + OutValue(I, InpCount + 1 - J, 5)
+                        Next
+                        OutValue(I, InpCount + 1, 6) = Round(InpValue / 7, 2)   '7日間平均
+                    End If
+                End If
+            Next
+            InpCount = InpCount + 1
+        Loop
+        OutCount = InpCount
+        .Close
+    End With
+    Rem -----------------------------------------------------------------------
     For I = OutCount + 1 To UBound(DateList)
         OutDate = DateAdd("d", I - OutCount, DateList(OutCount))
         DateList(I) = OutDate                               '日付一覧
@@ -322,11 +373,35 @@ Rem --- データー変換 ----------------------------------------------------------
         OutValue(0, I, 2) = OutDate                         '10万人あたり
         OutValue(0, I, 3) = OutDate                         '10万人あたり(7日間平均)
         OutValue(0, I, 4) = OutDate                         '10万人あたり(算出)
+        OutValue(0, I, 5) = OutDate                         '死者数(都道府県別)
+        OutValue(0, I, 6) = OutDate                         '死者数(都道府県別:7日間平均)
     Next
     OutCount = UBound(DateList)
     Rem -----------------------------------------------------------------------
     For I = 0 To 4
         OutFileName = "感染者数." & I & ".txt"
+        WScript.Echo "書出：" & OutFileName
+        With CreateObject("ADODB.Stream")
+            .Charset = "UTF-8"
+            .Open
+            For J = 0 To OutCount - 1
+                OutLine = ""
+                For K = 0 To 48
+                    If OutLine = "" Then
+                        OutLine = OutValue(K, J, I)
+                    Else
+                        OutLine = OutLine & Chr(9) & OutValue(K, J, I)
+                    End If
+                Next
+                .WriteText OutLine, 1
+            Next
+            .SaveToFile OutDir & "\" & OutFileName, 2
+            .Close
+        End With
+    Next
+    Rem -----------------------------------------------------------------------
+    For I = 5 To 6
+        OutFileName = "死者数." & I & ".txt"
         WScript.Echo "書出：" & OutFileName
         With CreateObject("ADODB.Stream")
             .Charset = "UTF-8"
@@ -504,7 +579,8 @@ Rem     OutCount = InpCount
             End If
             OutData = InpArray(1)
                                                             '7日間平均
-            If InpCount >= 6 Then
+Rem         If InpCount >= 6 Then
+            If InpCount >= 6 + 116 Then
                 If IsNumeric(OutValue(6, InpCount + 1 - 7)) = True Then
                     InpValue = 0
                     For I = 0 To 6
@@ -637,6 +713,7 @@ Rem     OutCount = InpCount
     Erase OutValue
 
     WScript.Echo "終了：データー変換"
+Rem WScript.Quit
 
 Rem --- Excel -----------------------------------------------------------------
     Set objExcel = CreateObject("Excel.Application")
@@ -648,8 +725,11 @@ Rem --- Excel -----------------------------------------------------------------
     Call MakeExcelFile("感染者数", "感染者数.0.txt")
     Call MakeExcelFile("7日間平均", "感染者数.1.txt")
     Call MakeExcelFile("10万人", "感染者数.3.txt")
+    Call MakeExcelFile("死者数", "死者数.5.txt")
+    Call MakeExcelFile("死者数7日間平均", "死者数.6.txt")
     Call MakeExcelFile("日本国内", "日本国内.txt")
     Call MakeExcelFile("順位付け", "順位付け.txt")
+Rem WScript.Quit
 
     Rem -----------------------------------------------------------------------
     With objDstWorkbook.Worksheets("Sheet1")
@@ -724,6 +804,18 @@ Rem     .Visible = False
             .Values = "=10万人!$O$2:$O$"
             .AxisGroup = 2
         End With
+        With .Collection(3)
+            .Name = "=""死者数"""
+            .XValues = "=感染者数!$A$2:$A$"
+            .Values = "=死者数!$O$2:$O$"
+            .AxisGroup = 2
+        End With
+        With .Collection(4)
+            .Name = "=""死者数(7日間平均)"""
+            .XValues = "=感染者数!$A$2:$A$"
+            .Values = "=死者数7日間平均!$O$2:$O$"
+            .AxisGroup = 2
+        End With
         Call MakeGraph(clsGraph, "描画：4: " & .ChartTitleText, False)
     End With
     Set clsGraph = Nothing
@@ -753,6 +845,18 @@ Rem     .Visible = False
             .Name = "=""10万人"""
             .XValues = "=日本国内!$A$2:$A$"
             .Values = "=日本国内!$E$2:$E$"
+            .AxisGroup = 2
+        End With
+        With .Collection(3)
+            .Name = "=""死者数"""
+            .XValues = "=日本国内!$A$2:$A$"
+            .Values = "=日本国内!$G$2:$G$"
+            .AxisGroup = 2
+        End With
+        With .Collection(4)
+            .Name = "=""死者数(7日間平均)"""
+            .XValues = "=日本国内!$A$2:$A$"
+            .Values = "=日本国内!$H$2:$H$"
             .AxisGroup = 2
         End With
         Call MakeGraph(clsGraph, "描画：5: " & .ChartTitleText, False)
@@ -808,9 +912,36 @@ Rem     .Visible = False
         Call MakeGraph(clsGraph, "描画：7: " & .ChartTitleText, True)
     End With
     Set clsGraph = Nothing
+    Rem ---  8: 死者数7日間平均 -----------------------------------------------
+    Set clsGraph = New ClassGraph
+    With clsGraph
+        Set .WorksheetGrph = objDstWorkbook.Worksheets("グラフ")
+        Set .WorksheetData = objDstWorkbook.Worksheets("死者数")
+        .Left = 0
+        .Top = 2400
+        .Width = 912
+        .Height = 585
+        .ChartTitleText = "死者数"
+        Call MakeGraph(clsGraph, "描画：8: " & .ChartTitleText, False)
+    End With
+    Set clsGraph = Nothing
+    Rem ---  9: 死者数7日間平均 -----------------------------------------------
+    Set clsGraph = New ClassGraph
+    With clsGraph
+        Set .WorksheetGrph = objDstWorkbook.Worksheets("グラフ")
+        Set .WorksheetData = objDstWorkbook.Worksheets("死者数7日間平均")
+        .Left = 960
+        .Top = 2400
+        .Width = 912
+        .Height = 585
+        .ChartTitleText = "死者数の7日間平均"
+        Call MakeGraph(clsGraph, "描画：9: " & .ChartTitleText, False)
+    End With
+    Set clsGraph = Nothing
     Rem --- テキストボックスの描画 --------------------------------------------
     objExcel.Application.ScreenUpdating = False
-    With objDstWorkbook.Worksheets("グラフ").ChartObjects(objDstWorkbook.Worksheets("グラフ").ChartObjects.Count).Chart
+Rem With objDstWorkbook.Worksheets("グラフ").ChartObjects(objDstWorkbook.Worksheets("グラフ").ChartObjects.Count).Chart
+    With objDstWorkbook.Worksheets("グラフ").ChartObjects(7).Chart
         With .Shapes.AddLabel(1, 0, 0, 72, 72)
             With .TextFrame.Characters
                 .Text = "グラフは厚生労働省のデーター、一覧表は算出のため一致しません"
@@ -892,6 +1023,12 @@ Rem     .Visible = True
     Next
 
     Rem -----------------------------------------------------------------------
+    With objDstWorkbook.Worksheets("グラフ")
+        .Activate
+        .Range("A1").Select
+    End With
+
+    Rem -----------------------------------------------------------------------
     OutFileName = CurDir & "\" & "covid-19.xlsx"
     WScript.Echo "保存：" & OutFileName
     objDstWorkbook.SaveAs (OutFileName)
@@ -940,6 +1077,34 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
         .Application.ScreenUpdating = False
         Select Case WorkSheetName
             Case "順位付け"
+            Case "死者数"
+                For I = 2 To .Cells(1, 1).End(-4161).Column
+                    With .Range(.Cells(116 + 1, I), .Cells(.Rows.Count, I).End(-4162))
+                        .FormatConditions.AddTop10
+                        With .FormatConditions(1)
+                            .TopBottom = 1
+                            .Rank = 1
+                            .Percent = False
+                            .Font.Color = -16776961
+                            .Font.TintAndShade = 0
+                            .StopIfTrue = False
+                        End With
+                    End With
+                Next
+            Case "死者数7日間平均"
+                For I = 2 To .Cells(1, 1).End(-4161).Column
+                    With .Range(.Cells(116, I), .Cells(.Rows.Count, I).End(-4162))
+                        .FormatConditions.AddTop10
+                        With .FormatConditions(1)
+                            .TopBottom = 1
+                            .Rank = 1
+                            .Percent = False
+                            .Font.Color = -16776961
+                            .Font.TintAndShade = 0
+                            .StopIfTrue = False
+                        End With
+                    End With
+                Next
             Case Else
                 For I = 2 To .Cells(1, 1).End(-4161).Column
                     With .Range(.Cells(2, I), .Cells(.Rows.Count, I).End(-4162))
@@ -987,6 +1152,14 @@ Sub MakeExcelFile(WorkSheetName, InpFileName)
                 .Range("O2:O" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("P2:P" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
                 .Range("G116").FormatConditions.Delete
+            Case "死者数"
+                .Range("A1:AW1").HorizontalAlignment = -4108
+                .Range("A1:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
+                .Range("B2:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0"
+            Case "死者数7日間平均"
+                .Range("A1:AW1").HorizontalAlignment = -4108
+                .Range("A1:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
+                .Range("B2:AW" & (.Cells(.Rows.Count, 1).End(-4162).Row)).NumberFormatLocal = "0.00"
             Case "順位付け"
                 .Range("A1:E1").HorizontalAlignment = -4108
                 .Range("A1:E" & (.Cells(.Rows.Count, 1).End(-4162).Row)).ShrinkToFit = True
@@ -1165,29 +1338,39 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
         Rem --- データーラベルの描画 ------------------------------------------
         For I = 1 To .FullSeriesCollection.Count
             If .FullSeriesCollection(I).IsFiltered = False Then
-                Rem --- 選択されたグラフの最大値の位置を取得 ------------------
                 If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
                     With objWorksheetData
-                        Set objRangeMax = .Range(.Cells(2, I + 1), .Cells(LatestRow, I + 1))
-                        MaxValue = objExcel.Max(objRangeMax)
-                        With objRangeMax.Find(MaxValue, , -4123, 1)
-                            MaxColumn = .Column - 1
-                            MaxRow = .Row - 1
-                        End With
+                        If .Name = "死者数" Or .Name = "死者数7日間平均" Then
+                            Set objRangeMax = .Range(.Cells(116 + 1, I + 1), .Cells(LatestRow, I + 1))
+                        Else
+                            Set objRangeMax = .Range(.Cells(2, I + 1), .Cells(LatestRow, I + 1))
+                        End If
                     End With
                 Else
-                Rem --- 選択されたグラフの最大値の位置を取得 ------------------
                     aryStrings = Split(Mid(clsGraph.Collection(I - 1).Values, 2), "!")
                     If aryStrings(0) = "日本国内" And Left(aryStrings(1), 2) = "$G" Then
-                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$G$117:$G$" & LatestRow)
+                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$G$" & (116 + 1) & ":$G$" & LatestRow)
+                    ElseIf aryStrings(0) = "死者数" And Left(aryStrings(1), 2) = "$O" Then
+                        Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range("$O$" & (116 + 1) & ":$O$" & LatestRow)
                     Else
                         Set objRangeMax = objDstWorkbook.Worksheets(aryStrings(0)).Range(aryStrings(1) & LatestRow)
                     End If
-                    MaxValue = objExcel.Max(objRangeMax)
-                    With objRangeMax.Find(MaxValue, , -4123, 1)
-                        MaxColumn = .Column - 1
-                        MaxRow = .Row - 1
-                    End With
+                End If
+                Rem --- 選択されたグラフの最大値の位置を取得 ------------------
+                MaxValue = objExcel.Max(objRangeMax)
+                With objRangeMax.Find(MaxValue, , -4123, 1)
+                    MaxColumn = .Column - 1
+                    MaxRow = .Row - 1
+                End With
+                Rem --- 選択されたグラフの最小値の位置を取得 ------------------
+                MinValue = objExcel.Min(objRangeMax)
+                With objRangeMax.Find(MinValue, , -4123, 1)
+                    MinColumn = .Column - 1
+                    MinRow = .Row - 1
+                End With
+                Rem --- 最小値が負の場合の処理 --------------------------------
+                If MinValue < 0 Then
+                    .Axes(2).MinimumScale = 0
                 End If
             End If
             Rem --- データーラベルの描画 (最大値) -----------------------------
@@ -1319,6 +1502,7 @@ Rem                     .ShowCategoryName = -1
     objExcel.Application.ScreenUpdating = True
 End Sub
 
+Rem ---------------------------------------------------------------------------
 Function FormatDateTime(DateTimeValue)
     Dim strYear
     Dim strMonth
@@ -1344,6 +1528,7 @@ Function FormatDateTime(DateTimeValue)
     FormatDateTime = strYear & "/" & strMonth & "/" & strDay & "(" & strWeekday & ")" & " " & strHour & ":" & strMinute & ":" & strSecond
 End Function
 
+Rem ---------------------------------------------------------------------------
 Function FormatSecond2DateTime(SecondValue)
     Dim strHour
     Dim strMinute
