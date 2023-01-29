@@ -1420,7 +1420,7 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
     objExcel.Application.ScreenUpdating = False
     Rem --- 順位付け関連 ------------------------------------------------------
     Set objWorksheetRank = objDstWorkbook.Worksheets("順位付け")
-    Set objRangeRank = objWorksheetRank.Range("B2:B6")      '上位5件
+    Set objRangeRank = objWorksheetRank.Range("B2:B4")      '上位3件
     Rem --- データーソース関連 ------------------------------------------------
     With objWorksheetData
         LatestRow = .Cells(.Rows.Count, 2).End(-4162).Row   '合計列
@@ -1501,9 +1501,11 @@ Sub MakeGraph(clsGraph, MessageText, LatestFlag)
         If clsGraph.Collection(LBound(clsGraph.Collection)).Name = "" Then
             For I = 1 To .FullSeriesCollection.Count
                 Select Case I
-                    Case 1
+                    Case 1                                  Rem 国内合計
                         .FullSeriesCollection(I).IsFiltered = True
-                    Case 2, 12, 13, 14, 15, 24, 28, 37, 41, 47, 48
+                    Case 2, 12, 13, 14, 15, 24, 28, 41, 48  Rem 北海道,埼玉県,千葉県,東京都,神奈川県,愛知県,大阪府,福岡県,沖縄県
+                        .FullSeriesCollection(I).IsFiltered = False
+                    Case 37, 46                             Rem 徳島県,宮崎県
                         .FullSeriesCollection(I).IsFiltered = False
                     Case Else
                         .FullSeriesCollection(I).IsFiltered = True
