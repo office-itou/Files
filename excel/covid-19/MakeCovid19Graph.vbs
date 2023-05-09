@@ -259,6 +259,9 @@ Rem --- データー変換 ----------------------------------------------------------
         Do Until .EOS
             InpLine = .ReadText(-2)
             InpArray = Split(InpLine, ",")
+            If IsNull(InpArray(0)) = True Then
+                Exit Do
+            End If
             For I = 0 To 48
                 If I = 0 Then
                     DateList(InpCount + 1) = InpArray(I)                        '日付一覧
@@ -299,6 +302,9 @@ Rem --- データー変換 ----------------------------------------------------------
         Do Until .EOS
             InpLine = .ReadText(-2)
             InpArray = Split(InpLine, ",")
+            If IsNull(InpArray(0)) = True Then
+                Exit Do
+            End If
             If InpCount = 0 Then
                 For I = 1 To OutCount
                     If CDate(OutValue(0, I, 2)) = CDate(InpArray(0)) Then
@@ -321,7 +327,7 @@ Rem --- データー変換 ----------------------------------------------------------
             Next
             InpCount = InpCount + 1
         Loop
-        OutCount = InpCount
+Rem     OutCount = InpCount
         .Close
     End With
     Rem -----------------------------------------------------------------------
@@ -341,6 +347,9 @@ Rem --- データー変換 ----------------------------------------------------------
         Do Until .EOS
             InpLine = .ReadText(-2)
             InpArray = Split(InpLine, ",")
+            If IsNull(InpArray(0)) = True Then
+                Exit Do
+            End If
             If InpCount = 0 Then
                 For I = 1 To OutCount
                     If CDate(OutValue(0, I, 5)) = CDate(InpArray(0)) Then
@@ -375,7 +384,7 @@ Rem             If InpCount >= 6 Then
             Next
             InpCount = InpCount + 1
         Loop
-        OutCount = InpCount
+Rem     OutCount = InpCount
         .Close
     End With
     Rem -----------------------------------------------------------------------
@@ -390,6 +399,9 @@ Rem             If InpCount >= 6 Then
         Do Until .EOS
             InpLine = .ReadText(-2)
             InpArray = Split(InpLine, ",")
+            If IsNull(InpArray(0)) = True Then
+                Exit Do
+            End If
             If InpCount = 0 Then
                 For I = 1 To OutCount
                     If CDate(OutValue(0, I, 8)) = CDate(InpArray(0)) Then
@@ -419,7 +431,7 @@ Rem             If InpCount >= 6 Then
             Next
             InpCount = InpCount + 1
         Loop
-        OutCount = InpCount
+Rem     OutCount = InpCount
         .Close
     End With
     Rem -----------------------------------------------------------------------
